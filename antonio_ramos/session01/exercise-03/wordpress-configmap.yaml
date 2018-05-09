@@ -1,0 +1,9 @@
+apiVersion: v1  
+kind: ConfigMap  
+metadata:  
+  name: wordpress-configmap
+  namespace: exercise-03
+data:
+  WORDPRESS_FIRST_NAME: Julio
+  WORDPRESS_LAST_NAME: Iglesias de la Cueva
+  WORDPRESS_BLOG_NAME: La vida sigue igual
