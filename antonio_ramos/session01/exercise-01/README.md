@@ -14,5 +14,5 @@ All is done in command.bash, execute:
 ./command.bash
 ```
 
-You must modify your /etc/host and add wordpress-exercise-01-com entry with ip from kubectl cluster-info
+You must modify your /etc/hosts and add wordpress-exercise-01-com entry with ip from kubectl cluster-info
 
