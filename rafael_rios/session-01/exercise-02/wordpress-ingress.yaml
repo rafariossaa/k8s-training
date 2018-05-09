@@ -1,0 +1,16 @@
+﻿apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: wp-ingress
+  namespace: exercise-02
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: cookie
+spec:
+  rules:
+  - host: wordpress-exercise-02.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: wp-web
+          servicePort: wp-http

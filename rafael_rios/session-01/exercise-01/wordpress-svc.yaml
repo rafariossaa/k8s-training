@@ -1,0 +1,16 @@
+﻿apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: wp-web
+  namespace: exercise-01
+spec:
+  type: NodePort
+  ports:
+  - name: http
+    port: 80
+    targetPort: wp-http
+  - name: https
+    port: 443
+    targetPort: wp-https
+  selector:
+    rol: web-wp

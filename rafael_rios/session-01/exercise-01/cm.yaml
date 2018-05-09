@@ -1,0 +1,16 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress-cm
+  namespace: exercise-01
+data:
+  WORDPRESS_USERNAME: admin
+  WORDPRESS_EMAIL: admin@example.com
+  WORDPRESS_FIRST_NAME: Rafa
+  WORDPRESS_LAST_NAME: Rios
+  WORDPRESS_BLOG_NAME: Kubernetes Exercise-01
+  MARIADB_HOST: wp-mariadb
+  MARIADB_PORT: "3306"
+  WORDPRESS_DATABASE_NAME: wp-ex01
+  WORDPRESS_TABLE_PREFIX: wp_
+  WORDPRESS_DATABASE_USER: wp_user
