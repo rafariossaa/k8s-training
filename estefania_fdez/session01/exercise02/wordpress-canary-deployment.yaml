@@ -1,0 +1,53 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wordpress-canary-deployment
+  namespace: exercise-02
+  labels:
+    app: wordpress
+    track: canary
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - image: bitnami/wordpress:4.9.5
+        name: wordpress
+        env:
+          - name: MARIADB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress-mariadb-config-map
+                key: mariadb_host
+          - name: MARIADB_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress-mariadb-config-map
+                key: mariadb_database
+          - name: WORDPRESS_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress-mariadb-config-map
+                key: wordpress_username
+          - name: WORDPRESS_DATABASE_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress-mariadb-config-map
+                key: wordpress_database_name
+        ports:
+          - containerPort: 80
+            name: wordpress
+        readinessProbe:
+            httpGet:
+            path: /wp-admin
+            port: http
+            initialDelaySeconds: 15
+        livenessProbe:
+            httpGet:
+            path: /wp-admin
+            port: http
+            initialDelaySeconds: 15
+            periodSeconds: 5

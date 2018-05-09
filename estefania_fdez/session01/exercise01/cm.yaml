@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress-mariadb-config-map
+  namespace: exercise-01
+data:
+  mariadb_host: "mariadb-host"
+  wordpress_username: "admin"
+  wordpress_database_name: "WP-K8-E1"

@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: wordpress-ingress
+  namespace: exercise-03
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/rewrite-target: /wp-admin
+spec:
+  rules:
+  - host: wordpress-exercise-03.com
+    http:
+      paths:
+      - path: /administration
+        backend:
+          serviceName: wordpress
+          servicePort: 80
