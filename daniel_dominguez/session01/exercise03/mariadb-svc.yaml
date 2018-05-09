@@ -6,4 +6,4 @@ metadata:
   name: mariadb
 spec:
   type: ExternalName
-  externalName: kubernetes-training.cfxyxg2jnovx.us-east-1.rds.amazonaws.com
+  externalName: kubernetes-training.ooo.us-east-1.rds.amazonaws.com
