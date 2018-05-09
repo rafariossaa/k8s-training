@@ -1,0 +1,48 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: exercise-01
+  labels:
+    app: wordpress
+    service: frontend
+spec:
+  replicas: 8
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        service: frontend
+    spec:
+      containers:
+      - image: bitnami/wordpress:latest
+        name: wordpress
+        env:
+        - name: NAMI_DEBUG
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-mariadb-config
+              key: wordpress.log.level
+        - name: MARIADB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-mariadb-config
+              key: wordpress.mariadb.host
+        - name: WORDPRESS_DATABASE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-mariadb-config
+              key: database.name
+        - name: WORDPRESS_DATABASE_USER
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-mariadb-config
+              key: database.user
+        - name: WORDPRESS_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-password
+              key: password
+        ports:
+        - containerPort: 80
+          name: wordpress

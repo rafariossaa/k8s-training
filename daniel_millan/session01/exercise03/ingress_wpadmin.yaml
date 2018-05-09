@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: wordpress-ingress-redirect
+  namespace: exercise-03
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  tls:
+    - hosts:
+      - wordpress-exercise-03.com
+      secretName: tls-certificate
+  rules:
+  - host: wordpress-exercise-03.com
+    http:
+      paths:
+      - path: /my-custom-admin
+        backend:
+          serviceName: wordpress-svc
+          servicePort: 80
