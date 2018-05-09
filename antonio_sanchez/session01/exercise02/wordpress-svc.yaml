@@ -1,0 +1,22 @@
+﻿apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: service-wordpress
+  namespace: exercise02
+  labels:
+    app: wordpress
+    type: web
+    tier: frontend
+spec:
+  selector:
+    app: wordpress
+    type: web
+    tier: frontend
+  ports:
+  - name: http-sv-port
+    port: 80
+    targetPort: http-port
+  - name: https-sv-port
+    port: 443
+    targetPort: https-port
+  type: NodePort
