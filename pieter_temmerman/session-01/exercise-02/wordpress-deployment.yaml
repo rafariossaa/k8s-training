@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wordpress-deployment
+  namespace: exercise-02
+  labels:
+    app: wordpress
+    tier: frontend
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        tier: frontend
+    spec:
+      containers:
+      - image: bitnami/wordpress:4.9.4
+        name: wordpress
+        envFrom:
+          - configMapRef:
+              name: wordpress-config
+          - secretRef:
+              name: wordpress-secrets
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 25
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 25
+          periodSeconds: 10
+        ports:
+          - name: http
+            containerPort: 80
+          - name: https
+            containerPort: 443
