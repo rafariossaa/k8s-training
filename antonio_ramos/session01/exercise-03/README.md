@@ -16,7 +16,7 @@ All is done in command.bash, execute:
 
 You must modify your /etc/hosts and add wordpress-exercise-03.com entry with ip from kubectl cluster-info
 
-You must modify rds-svc.yaml for a valid rds server name and populate for valid credential mariadb-secret.yaml
+You must modify rds-svc.yaml with a valid rds server name and populate with valid credentials mariadb-secret.yaml
 
 
 Wait until all pods are ready:
