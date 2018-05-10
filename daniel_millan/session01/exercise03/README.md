@@ -18,50 +18,50 @@ configured
 http://wordpress-exercise-03.com/my-custom-admin/. Configure NGINX ingress to do that
 redirection.
 
-### Credentials
 
-* Database
-  * Hostname: kubernetes-training.cfxyxg2jnovx.us-east-1.rds.amazonaws.com
-  * Name: k8s_training_db_XX
-  * User: k8s_training_user_XX
-  * Password: bitnami-training-2018
-* Wordpress:
-  * User: julio_iglesias
-  * Password: ylosabes
-  * Blog Name: La vida sigue igual
-  * FirstName: Julio
-  * LastName: Iglesias de la Cueva
+### What I did
 
-## What to deliver
+- create namespace 
+```kubectl create namespace exercise03```
 
-* YAML/JSON files with the definitions of every requested K8s object. Templates
-are provided.
-* If you created your resources from the command line, attach a bash script with
-the commands used to create them. Sth like:
+- change current context to namespace exercise02 so I don't mess with other namespaces
+```./commands.bash context```
 
-```
-#!/bin/bash
+- create secrets for mariadb-root, mariadb-user and wp-user
+```./commands.bash dbSecret```
 
-kubectl create secret generic ...
-```
+- create certificate files for tls
+```./commands.bash createCert```
 
-Use the structure below on your PR To GitHub:
+- create secret for tls
+```./commands.bash tlsSecret```
 
-```
-|
-|-/session-01
-|-/session-01/exercise-03/
-|-/session-01/exercise-03/README.md
-|-/session-01/exercise-03/commands.bash
-|-/session-01/exercise-03/*.yaml
-```
+- write the config map yaml, check the bitnami/wordpress image and check which parameters are used to configure wp instance
 
-## Tips
+- write the deployments yaml for wp and mariadb, had to do some google searchs since this is the first time I had to handle with a non-example deployment definition
 
-* Use a linter to avoid syntax errors on your YAML/JSON files
-* You can user the Docker Image below to run a linter
+- write the services yaml for wp and mariadb
 
-```
-docker run -v /path-to-your-defs:/opt/data-definitions \
-juanariza131/linter:latest
-```
+- write the ingress part
+
+- read some docs about liveness/readiness check and add checks to mariadb (which can be connection to 3306 or exec mysqladmin) and wp deployments (http to port 80)
+
+- launch all artifacts
+```./commands.bash create```
+
+- To delete artifacts created via docker create -f, I added a script command to delete everything created via yaml files.
+```./commands.bash delete```
+
+- add DNS entry
+```./addDNS.bash dns```
+
+- Load browser and point to http://wordpress-exercise-03.com/ check it works
+
+- Load browser and point to https://wordpress-exercise-03.com/ check it works
+
+- Load browser and point to https://wordpress-exercise-03.com/my-custom-admin/ and see the redirection to /wp-admin
+
+### Problems found
+
+- Redirection from /my-custom-admin to /wp-admin worked only if I added a trailing backslash in the URL /my-custom-admin/ <--
+

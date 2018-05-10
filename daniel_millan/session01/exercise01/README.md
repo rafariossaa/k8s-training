@@ -13,12 +13,12 @@ MariaDB as database with the characteristics below:
 
 ### What I did
 
-- try to manage how to deal with the general configuration of Pods
+- try to manage how to deal with the general configuration of Pods, read some docs here and there and review the session presentation
 
 - create namespace 
 ```kubectl create namespace exercise01```
 
-- change current context to namespace exercise01 so I don't mess with other workspaces
+- change current context to namespace exercise01 so I don't mess with other namespaces
 ```./commands.bash context```
 
 - create secrets for mariadb-root, mariadb-user and wp-user
@@ -39,6 +39,12 @@ MariaDB as database with the characteristics below:
 ```./commands.bash delete```
 
 - add DNS entry
-```./addDNS.bash dbSecret```
+```./addDNS.bash dns```
 
 - Load browser and point to http://wordpress-exercise-01.com/
+
+### Problems found
+
+- Editors do not handle yaml as good as they should, better use Visual Studio Code, or TextMate and change tabs for 2 spaces
+- Selectors problems, require a double check, lost one complete day checking why wp did not connect to mariadb but mysql cli did.
+

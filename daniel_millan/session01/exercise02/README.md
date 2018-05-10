@@ -15,44 +15,39 @@ version and use 4.9.5 in the canary deployment
 * WP should be accessible through http using a NGINX Ingress on the URL
 *wordpress-exercise-02.com*.
 
-### What to deliver
+### What I did
 
-* YAML/JSON files with the definitions of every requested K8s object. Templates
-are provided.
-* If you created your resources from the command line, attach a bash script with
-the commands used to create them. Sth like:
+- create namespace 
+```kubectl create namespace exercise02```
 
-```
-#!/bin/bash
+- change current context to namespace exercise02 so I don't mess with other namespaces
+```./commands.bash context```
 
-kubectl create secret generic ...
-```
+- create secrets for mariadb-root, mariadb-user and wp-user
+```./commands.bash dbSecret```
 
-Use the structure below on your PR To GitHub:
+- write the config map yaml
 
-```
-|
-|-/session-01
-|-/session-01/exercise-02/
-|-/session-01/exercise-02/README.md
-|-/session-01/exercise-02/commands.bash
-|-/session-01/exercise-02/*.yaml
-```
+- write the deployments yaml for both wp, in stable and canary versions, tag them via labels, and create deployment yaml for mariadb
 
-### Tips
+- write the services yaml for wp and mariadb, in wp service, target both canary and stable versions
 
-* Use a linter to avoid syntax errors on your YAML/JSON files
-* You can user the Docker Image below to run a linter
+- write the ingress part
 
-```
-docker run -v /path-to-your-defs:/opt/data-definitions \
-juanariza131/linter:latest
-```
+- read some docs about liveness/readiness check and add checks to mariadb (which can be connection to 3306 or exec mysqladmin) and wp deployments (http to port 80)
 
-### Notes
+- launch all artifacts
+```./commands.bash create```
 
-You need to guarantee Session Affinity when using Canary Deployments. See
-https://github.com/kubernetes/ingress-nginx/tree/master/docs/examples/affinity/cookie
+- To delete artifacts created via docker create -f, I added a script command to delete everything created via yaml files.
+```./commands.bash delete```
 
-You need to edit the nginx-ingress-controller to use a different Docker image version. Please use:
-*quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.10.2*
+- add DNS entry
+```./addDNS.bash dns```
+
+- Load browser and point to http://wordpress-exercise-02.com/
+
+### Problems found
+
+- Can be hard to see if canary versions are being used, so i used NAMI_LOG environment and log wp output of canary and stable builds and see who was receiving the incoming calls, other option could have been a subtle difference in UI (blog name) that could be easier.
+
