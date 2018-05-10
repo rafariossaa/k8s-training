@@ -11,36 +11,34 @@ MariaDB as database with the characteristics below:
 * WP should be accessible through http using a NGINX Ingress on the URL
 *wordpress-exercise-01.com*.
 
-## What to deliver
+### What I did
 
-* YAML/JSON files with the definitions of every requested K8s object. Templates
-are provided.
-* If you created your resources from the command line, attach a bash script with
-the commands used to create them. Sth like:
+- try to manage how to deal with the general configuration of Pods
 
-```
-#!/bin/bash
+- create namespace 
+```kubectl create namespace exercise01```
 
-kubectl create secret generic ...
-```
+- change current context to namespace exercise01 so I don't mess with other workspaces
+```./commands.bash context````
 
-Use the structure below on your PR To GitHub:
+- create secrets for mariadb-root, mariadb-user and wp-user
+```./commands.bash dbSecret````
 
-```
-|
-|-/session-01
-|-/session-01/exercise-01/
-|-/session-01/exercise-01/README.md
-|-/session-01/exercise-01/commands.bash
-|-/session-01/exercise-01/*.yaml
-```
+- write the config map yaml
 
-## Tips
+- write the deployments yaml for wp and mariadb, had to do some google searchs since this is the first time I had to handle with a non-example deployment definition
 
-* Use a linter to avoid syntax errors on your YAML/JSON files
-* You can user the Docker Image below to run a linter
+- write the services yaml for wp and mariadb
 
-```
-docker run -v /path-to-your-defs:/opt/data-definitions \
-juanariza131/linter:latest
-```
+- write the ingress part
+
+- launch all artifacts
+```./commands.bash create````
+
+- To delete artifacts created via docker create -f, I added a script command to delete everything created via yaml files.
+```./commands.bash delete````
+
+- add DNS entry
+```./addDNS.bash dbSecret````
+
+- Load browser and point to http://wordpress-exercise-01.com/
