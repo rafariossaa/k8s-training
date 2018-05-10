@@ -6,7 +6,10 @@ metadata:
   labels:
     app: wpblog
   annotations:
+    # From https://github.com/kubernetes/ingress-nginx/tree/master/docs/examples/affinity/cookie
     nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/session-cookie-name: wordpress-exercise-01
+    nginx.ingress.kubernetes.io/session-cookie-hash: sha1
 spec:
   rules:
   - host: wordpress-exercise-01.com
@@ -15,4 +18,4 @@ spec:
       - path: /
         backend:
           serviceName: wordpress
-          servicePort: 80
+          servicePort: http

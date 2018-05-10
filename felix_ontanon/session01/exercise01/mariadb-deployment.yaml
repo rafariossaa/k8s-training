@@ -27,8 +27,11 @@ spec:
         - containerPort: 3306
           name: mysql
         env: # Vars from https://hub.docker.com/r/bitnami/mariadb
-        - name: ALLOW_EMPTY_PASSWORD
-          value: "yes"
+        - name: MARIADB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: blogsecrets
+              key: db-root-password
         - name: MARIADB_DATABASE
           valueFrom:
             configMapKeyRef:
