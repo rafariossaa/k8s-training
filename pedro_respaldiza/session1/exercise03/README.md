@@ -70,5 +70,5 @@ pedro_respaldiza/session1/exercise03/wordpress-ingress.yaml
 juan131 8 hours ago  • 
 Unless you configure WP to use a different Admin URI this will break the functionality.. It is unnecessary the 404, but it's ok
 ~~~
-I believe that wp-login.php is perfectly functional. If I do not rewrite wp-admin to 404 I will only be creating an alternate route without affecting wp-admin. Do you mean another functionality? If you want we can look at it tomorrow in the preview.
+I believe that wp-login.php is perfectly functional. If I do not rewrite wp-admin to 404 I will only be creating an alternate route without affecting wp-admin. Do you mean another functionality? If you want we can look it tomorrow.
 ---

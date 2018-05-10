@@ -9,7 +9,7 @@ In wordpress.yaml I have indicated the corresponding image, I have indicated tha
 As indicated, I changed the ingress image to be able to use
 ~~~
 nginx.ingress.kubernetes.io/affinity: cookie
-~~
+~~~
 This forces a user who visits one of the versions to have a persistent session based on cookies.
 
 ## Liveness and Readiness
