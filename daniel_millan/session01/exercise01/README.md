@@ -19,10 +19,10 @@ MariaDB as database with the characteristics below:
 ```kubectl create namespace exercise01```
 
 - change current context to namespace exercise01 so I don't mess with other workspaces
-```./commands.bash context````
+```./commands.bash context```
 
 - create secrets for mariadb-root, mariadb-user and wp-user
-```./commands.bash dbSecret````
+```./commands.bash dbSecret```
 
 - write the config map yaml
 
@@ -33,12 +33,12 @@ MariaDB as database with the characteristics below:
 - write the ingress part
 
 - launch all artifacts
-```./commands.bash create````
+```./commands.bash create```
 
 - To delete artifacts created via docker create -f, I added a script command to delete everything created via yaml files.
-```./commands.bash delete````
+```./commands.bash delete```
 
 - add DNS entry
-```./addDNS.bash dbSecret````
+```./addDNS.bash dbSecret```
 
 - Load browser and point to http://wordpress-exercise-01.com/
