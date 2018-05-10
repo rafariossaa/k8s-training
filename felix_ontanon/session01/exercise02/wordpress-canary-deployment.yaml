@@ -77,19 +77,17 @@ spec:
             configMapKeyRef:
               name: blogconfig
               key: wp-blog-lastname
-      - name: liveness
-        image: k8s.gcr.io/liveness
-        args:
-        - /server
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 10
-          periodSeconds: 5
+
+        # Readiness & Liveness Probes
         readinessProbe:
           httpGet:
             path: /
             port: 80
           initialDelaySeconds: 10
           periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 15
+          periodSeconds: 20
