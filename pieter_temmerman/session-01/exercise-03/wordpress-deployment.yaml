@@ -15,7 +15,7 @@ spec:
         tier: frontend
     spec:
       containers:
-      - image: bitnami/wordpress:4.9.4
+      - image: bitnami/wordpress:latest
         name: wordpress
         envFrom:
           - configMapRef:
