@@ -32,6 +32,9 @@ logStable(){
 }
 dbSecret(){
   kubectl create secret generic mariadb-password --from-literal=password=DRM_DB_PASS --namespace=exercise-02
+  kubectl create secret generic wp-mariadb-password --from-literal=password=DRM_WP_DB_PASS --namespace=exercise-02
+  kubectl create secret generic wp-password --from-literal=password=DRM_WP_PASS --namespace=exercise-02
+  
 }
 
 createNamespace(){

@@ -5,7 +5,7 @@ metadata:
   namespace: exercise-03
   annotations:
     nginx.ingress.kubernetes.io/affinity: cookie
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/rewrite-target: /wp-admin
 spec:
   tls:
     - hosts:

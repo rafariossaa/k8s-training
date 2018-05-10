@@ -27,12 +27,12 @@ spec:
             configMapKeyRef:
               name: wordpress-mariadb-config
               key: database.user
-        - name: MARIADB_ROOT_PASSWORD
+        - name: MARIADB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mariadb-password
+              name: wp-mariadb-password
               key: password
-        - name: MARIADB_PASSWORD
+        - name: MARIADB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mariadb-password
@@ -41,16 +41,20 @@ spec:
         - containerPort: 3306
           name: mariadb
         livenessProbe:
-          tcpSocket:
-            port: 3306
+          exec:
+            command:
+              - mysqladmin
+              - ping
           initialDelaySeconds: 30
           timeoutSeconds: 25
           periodSeconds: 30
           successThreshold: 1
           failureThreshold: 10
         readinessProbe:
-          tcpSocket:
-            port: 3306
+          exec:
+            command:
+              - mysqladmin
+              - ping
           initialDelaySeconds: 30
           timeoutSeconds: 25
           periodSeconds: 30

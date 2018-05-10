@@ -7,7 +7,7 @@ metadata:
     app: wordpress
     service: frontend
 spec:
-  replicas: 8
+  replicas: 2
   template:
     metadata:
       labels:
@@ -18,11 +18,6 @@ spec:
       - image: bitnami/wordpress:latest
         name: wordpress
         env:
-        - name: NAMI_DEBUG
-          valueFrom:
-            configMapKeyRef:
-              name: wordpress-mariadb-config
-              key: wordpress.log.level
         - name: MARIADB_HOST
           valueFrom:
             configMapKeyRef:
@@ -38,11 +33,26 @@ spec:
             configMapKeyRef:
               name: wordpress-mariadb-config
               key: database.user
+        - name: WORDPRESS_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-mariadb-config
+              key: wp.user
+        - name: WORDPRESS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wp-password
+              key: password
+        - name: WORDPRESS_BLOG_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-mariadb-config
+              key: wp.blog
         - name: WORDPRESS_DATABASE_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mariadb-password
+              name: wp-mariadb-password
               key: password
         ports:
         - containerPort: 80
-          name: wordpress
+          name: http

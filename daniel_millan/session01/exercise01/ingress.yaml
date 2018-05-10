@@ -5,6 +5,8 @@ metadata:
   namespace: exercise-01
   annotations:
     nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/session-cookie-name: route
+    nginx.ingress.kubernetes.io/session-cookie-hash: sha1
 spec:
   rules:
   - host: wordpress-exercise-01.com 

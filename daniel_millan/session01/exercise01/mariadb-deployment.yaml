@@ -27,16 +27,16 @@ spec:
             configMapKeyRef:
               name: wordpress-mariadb-config
               key: database.user
-        - name: MARIADB_ROOT_PASSWORD
+        - name: MARIADB_PASSWORD
           valueFrom:
             secretKeyRef:
-              name: mariadb-password
+              name: wp-mariadb-password
               key: password
-        - name: MARIADB_PASSWORD
+        - name: MARIADB_ROOT_PASSWORD
           valueFrom:
             secretKeyRef:
               name: mariadb-password
               key: password
         ports:
         - containerPort: 3306
-          name: mariadb
+          name: mariadb-port
