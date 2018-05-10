@@ -28,4 +28,4 @@ That is, it should be pointing to the correct Kubernetes API IP and use the X509
 
 ### Curiosities
 
-Strangely enough, you can create an ingress referencing a non-existent tls-secret. Moreover, "kubectl describe ingress NAME" shows it's configured to serve HTTPS requests. This lead to some confusion (and lost time), as I wasn't aware that my tls-secret wasn't properly created.
+Strangely enough, you can create an ingress referencing a non-existent tls-secret. Moreover, "kubectl describe ingress NAME" shows it's configured to serve HTTPS requests. This led to some confusion (and lost time), as I wasn't aware that my tls-secret wasn't properly created.
