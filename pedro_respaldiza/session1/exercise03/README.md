@@ -39,3 +39,36 @@ This bash script performs all the necessary steps for the deployment of the enti
 - Creation of services and deployment > In the case of mariadb we only need the service to connect to the external database. For Wordpress we need to create the service and the deployment (which are in the same file)
 - Creation of Ingress rules
 - Add the host name to / etc / hosts to test the correct functioning of ingress.
+
+## Corrections
+---
+~~~
+pedro_respaldiza/session1/exercise03/wordpress-exercise-03.key
+@@ -0,0 +1,28 @@
++-----BEGIN PRIVATE KEY-----
+ @juan131
+juan131 8 hours ago
+Please remove this from the PR
+
+ @pedrorespaldiza	Reply…
+pedro_respaldiza/session1/exercise03/wordpress-exercise-03.crt
+@@ -0,0 +1,17 @@
++-----BEGIN CERTIFICATE-----
+ @juan131
+juan131 8 hours ago
+Please remove this from PR
+~~~
+Removed and added to gitignore
+---
+~~~
+pedro_respaldiza/session1/exercise03/wordpress-ingress.yaml
++    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
++    nginx.ingress.kubernetes.io/configuration-snippet: |
++      location ^~ /k8sadmin {return 301 http://wordpress-exercise-03.com/wp-login.php;}
++      location ^~ /wp-admin {return 301 http://wordpress-exercise-03.com/404;}
+ @juan131
+juan131 8 hours ago  • 
+Unless you configure WP to use a different Admin URI this will break the functionality.. It is unnecessary the 404, but it's ok
+~~~
+I believe that wp-login.php is perfectly functional. If I do not rewrite wp-admin to 404 I will only be creating an alternate route without affecting wp-admin. Do you mean another functionality? If you want we can look at it tomorrow in the preview.
+---

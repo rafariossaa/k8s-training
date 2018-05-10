@@ -17,3 +17,55 @@ I used the same command in the liveness and readiness test, but the initial deal
 
 ## Bash Script
 The bash script launches all elements. The sequence and the commands are the same as in exercise-01 because all the modifications have been made in the deployment files.
+
+## Correnctions
+---
+~~~
+pedro_respaldiza/session1/exercise02/mariadb.yaml
++                  name: mariadb-secret
++                  key: dbprefix
++          readinessProbe:
++            exec:
+ @juan131
+juan131 7 hours ago
+Not sure if it's the best way to test if MariaB is ready but it's a valid solution. Here you have an alternative:
+
+          exec:
+            command:
+            - mysqladmin
+            - ping
+~~~
+Not only is it an alternative, your version gives real meaning to the tests. I implement it for Liveness and Readiness. My test would allow to continue running and send traffict to a pod with a failure in the service.
+~~~
+pedro_respaldiza/session1/exercise02/wordpress-ingress.yaml
++    type: frontend
++  annotations:
++    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
++    nginx.ingress.kubernetes.io/affinity: cookie
+ @juan131
+juan131 7 hours ago
+Does it work? This annotation needs others complement annotations:
+
+nginx.ingress.kubernetes.io/session-cookie-name
+nginx.ingress.kubernetes.io/session-cookie-hash
+~~~
+It is true, I change it.:w
+~~~
+pedro_respaldiza/session1/exercise02/wordpress.yaml
++                  key: wpuser
++          readinessProbe:
++            exec:
++              command:
+ @juan131
+juan131 8 hours ago
+Again.. I don't thinks it's a good way to test WP readiness.. Here you have an alternative:
+
+        readinessProbe:
+          initialDelaySeconds: 30
+          httpGet:
+            path: /wp-login.php
+            port: http
+~~~
+It is the same case of MariaDB tests. Your tests are much better and I implement them.
+---
+

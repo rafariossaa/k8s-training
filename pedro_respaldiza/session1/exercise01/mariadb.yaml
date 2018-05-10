@@ -8,7 +8,7 @@ metadata:
   name: mariadb-service
   namespace: exercise-01
   labels:
-    app: wordpress
+    app: mariadb
     type: database
 spec:
   selector:
@@ -32,12 +32,12 @@ spec:
   template:
     metadata:
       labels:
-        app: wordpress
+        app: mariadb
         type: database
     spec:
       containers:
         - name: wordpress
-          image: bitnami/mariadb:10.1
+          image: bitnami/mariadb:latest
           ports:
             - containerPort: 3306
               name: db-port
@@ -62,8 +62,3 @@ spec:
                 secretKeyRef:
                   name: mariadb-secret
                   key: dbrootpassword
-            - name: WORDPRESS_TABLE_PREFIX
-              valueFrom:
-                secretKeyRef:
-                  name: mariadb-secret
-                  key: dbprefix

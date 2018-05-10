@@ -36,8 +36,8 @@ spec:
         type: database
     spec:
       containers:
-        - name: wordpress
-          image: bitnami/mariadb:10.1
+        - name: mariadb
+          image: bitnami/mariadb:latest
           ports:
             - containerPort: 3306
               name: db-port
@@ -70,14 +70,14 @@ spec:
           readinessProbe:
             exec:
               command:
-                - test
-                - '`find alive.txt -mmin -1`'
-            initialDelaySeconds: 5
-            periodSeconds: 15
+                - mysqladmin
+                - ping
+            initialDelaySeconds: 60 
+            periodSeconds: 30
           livenessProbe:
             exec:
               command:
-                - test
-                - '`find alive.txt -mmin -1`'
-            initialDelaySeconds: 15
-            periodSeconds: 15
+                - mysqladmin
+                - ping
+            initialDelaySeconds: 90
+            periodSeconds: 60

@@ -11,8 +11,9 @@ metadata:
     app: wordpress
     type: frontend
   annotations:
-    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
     nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/session-cookie-name: "wp-cookie"
+    nginx.ingress.kubernetes.io/session-cookie-hash: "sha1"
 spec:
   rules:
   - host: wordpress-exercise-02.com

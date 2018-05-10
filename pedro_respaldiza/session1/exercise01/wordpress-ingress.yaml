@@ -11,7 +11,6 @@ metadata:
     app: wordpress
     type: frontend
   annotations:
-    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
 spec:
   rules:
   - host: wordpress-exercise-01.com 

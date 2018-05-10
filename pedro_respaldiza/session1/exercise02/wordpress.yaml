@@ -21,7 +21,7 @@ spec:
   - name: https-sv-port
     port: 443
     targetPort: https-port
-  type: NodePort
+  type: ClusterIP
 ---
 apiVersion: apps/v1beta1
 kind: Deployment
@@ -84,6 +84,11 @@ spec:
                 configMapKeyRef:
                   name: wordpress-cm
                   key: wpuser
+            - name: WORDPRESS_TABLE_PREFIX
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: dbprefix
           readinessProbe:
             exec:
               command:
@@ -160,17 +165,21 @@ spec:
                 configMapKeyRef:
                   name: wordpress-cm
                   key: wpuser
+            - name: WORDPRESS_TABLE_PREFIX
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb-secret
+                  key: dbprefix
           readinessProbe:
-            exec:
-              command:
-                - test
-                - '`find alive.txt -mmin -1`'
-            initialDelaySeconds: 5
-            periodSeconds: 15
+            httpGet:
+              path: /wp-login.php
+              port: http
+            initialDelaySeconds: 60
+            periodSeconds: 30
           livenessProbe:
-            exec:
-              command:
-                - test
-                - '`find alive.txt -mmin -1`'
-            initialDelaySeconds: 15
-            periodSeconds: 15
+            httpGet:
+              path: /wp-login.php
+              port: http
+            initialDelaySeconds: 90
+            periodSeconds: 60
+

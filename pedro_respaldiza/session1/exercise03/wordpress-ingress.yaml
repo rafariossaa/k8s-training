@@ -11,7 +11,6 @@ metadata:
     app: wordpress
     type: frontend
   annotations:
-    nginx.ingress.kubernetes.io/from-to-www-redirect: "true"
     nginx.ingress.kubernetes.io/configuration-snippet: |
       location ^~ /k8sadmin {return 301 http://wordpress-exercise-03.com/wp-login.php;}
       location ^~ /wp-admin {return 301 http://wordpress-exercise-03.com/404;}
