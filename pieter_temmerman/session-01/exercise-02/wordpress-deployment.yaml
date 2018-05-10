@@ -6,6 +6,7 @@ metadata:
   labels:
     app: wordpress
     tier: frontend
+    env: stable
 spec:
   replicas: 2
   template:
