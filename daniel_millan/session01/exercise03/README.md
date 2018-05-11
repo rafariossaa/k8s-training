@@ -38,7 +38,7 @@ redirection.
 
 - write the config map yaml, check the bitnami/wordpress image and check which parameters are used to configure wp instance
 
-- write the deployments yaml for wp and mariadb, had to do some google searchs since this is the first time I had to handle with a non-example deployment definition
+- write the deployment yaml for wp
 
 - write the services yaml for wp and mariadb
 
