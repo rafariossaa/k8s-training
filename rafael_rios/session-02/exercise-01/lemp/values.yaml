@@ -4,11 +4,37 @@
 
 replicaCount: 1
 
-image:
-  repository: nginx
-  tag: stable
+nginx:
+  tag: latest
+  pullPolicy: IfNotPresent
+  config: |
+    server {
+      listen 0.0.0.0:8080;
+      server_name myapp.com;
+
+      root /MOUNT_PATH/php-sample-app;
+
+      location / {
+        try_files $uri $uri/index.php;
+      }
+
+      location ~ \.php$ {
+        # As php and nginx are in the same pod, we can access php-fpm service through localhost
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        include fastcgi.conf;
+      }
+    }
+      
+phpfpm:
+  tag: latest
   pullPolicy: IfNotPresent
 
+imageInit:
+  repository: nginx
+  tag: stable
+  pullPolicy: IfNotPresent  
+  
 service:
   type: ClusterIP
   port: 80

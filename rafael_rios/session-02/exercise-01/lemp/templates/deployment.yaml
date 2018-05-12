@@ -20,32 +20,33 @@ spec:
         release: {{ .Release.Name }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: {{ printf "%s-nginx-%s" .Chart.Name .Values.nginx.tag }}
+          image: {{ printf "%s:%s" "bitnami/nginx"  .Values.nginx.tag }}
+          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
           ports:
             - name: http
               containerPort: 80
               protocol: TCP
-          livenessProbe:
-            httpGet:
-              path: /
-              port: http
-          readinessProbe:
-            httpGet:
-              path: /
-              port: http
-          resources:
-{{ toYaml .Values.resources | indent 12 }}
-    {{- with .Values.nodeSelector }}
-      nodeSelector:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.affinity }}
-      affinity:
-{{ toYaml . | indent 8 }}
-    {{- end }}
-    {{- with .Values.tolerations }}
-      tolerations:
-{{ toYaml . | indent 8 }}
-    {{- end }}
+          volumeMounts:
+            - name: {{ template "lemp.fullname" . }}-vm
+              mountPath: /etc/config
+          # livenessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+          # readinessProbe:
+          #   httpGet:
+          #     path: /
+          #     port: http
+        - name: {{ printf "%s-phpfpm-%s" .Chart.Name .Values.phpfpm.tag }}
+          image: {{ printf "%s:%s" "bitnami/php-fpm"  .Values.phpfpm.tag }}
+          imagePullPolicy: {{ .Values.phpfpm.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 9090
+              protocol: TCP                            
+      volumes:
+        - name: {{ template "lemp.fullname" . }}-vm
+          configMap:
+            name: {{ template "lemp.fullname" . }}-cm
+            
