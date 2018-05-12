@@ -12,7 +12,7 @@ nginx:
       listen 0.0.0.0:8080;
       server_name myapp.com;
 
-      root /MOUNT_PATH/php-sample-app;
+      root /app/php-sample-app;
 
       location / {
         try_files $uri $uri/index.php;
@@ -30,8 +30,11 @@ phpfpm:
   tag: latest
   pullPolicy: IfNotPresent
 
+mariadb:
+  tag: latest
+  pullPolicy: IfNotPresent
+
 imageInit:
-  repository: nginx
   tag: stable
   pullPolicy: IfNotPresent  
   

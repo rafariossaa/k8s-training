@@ -19,6 +19,16 @@ spec:
         app: {{ template "lemp.name" . }}
         release: {{ .Release.Name }}
     spec:
+      initContainers:
+        - name: "descarga-app"
+          image: "busybox"
+          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
+          command: ["/bin/sh","-c"]
+          # Get the app from repository, delete files not wanted here
+          args: ["cd /app; wget https://github.com/bitnami-labs/k8s-training-resources/archive/master.zip; unzip master.zip; rm -rf k8s-training-resources-master/php-sample-app/vhosts"]
+          volumeMounts:
+            - name: {{ template "lemp.fullname" . }}-app
+              mountPath: /app
       containers:
         - name: {{ printf "%s-nginx-%s" .Chart.Name .Values.nginx.tag }}
           image: {{ printf "%s:%s" "bitnami/nginx"  .Values.nginx.tag }}
@@ -28,8 +38,11 @@ spec:
               containerPort: 80
               protocol: TCP
           volumeMounts:
-            - name: {{ template "lemp.fullname" . }}-vm
+            - name: {{ template "lemp.fullname" . }}-vh
               mountPath: /etc/config
+            - name: {{ template "lemp.fullname" . }}-app
+              mountPath: /app
+              subPath: k8s-training-resources-master/php-sample-app
           # livenessProbe:
           #   httpGet:
           #     path: /
@@ -46,7 +59,14 @@ spec:
               containerPort: 9090
               protocol: TCP                            
       volumes:
-        - name: {{ template "lemp.fullname" . }}-vm
+        - name: {{ template "lemp.fullname" . }}-vh
           configMap:
             name: {{ template "lemp.fullname" . }}-cm
-            
+        - name: {{ template "lemp.fullname" . }}-app
+          persistentVolumeClaim:
+            claimName: {{ template "lemp.fullname" . }}-pvc
+
+##FIXME: You should mount the nginx configuration file at /bitnami/nginx/conf/vhosts/myapp.conf in the nginx container.
+##FIXME: El sition donde se dejan los ficheros de la aplicacion deben ser el que está en el cm
+##FIXME: ver si puedo descarcar los raw de los ficheros de la aplicacion
+##FIXME: MariaDB: ERROR ==> The MARIADB_ROOT_PASSWORD environment variable is empty or not set. Set the environment variable ALLOW_EMPTY_PASSWORD=yes to allow the container to be started with blank passwords. This is recommended only for development.
