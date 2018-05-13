@@ -27,3 +27,9 @@ spec:
             - name: mariadb
               containerPort: 3306
               protocol: TCP
+          env:
+          - name: MARIADB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "lemp.fullname" . }}-secrets
+                key: MARIADB_ROOT_PASSWORD
