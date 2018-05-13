@@ -1,5 +1,5 @@
-apiVersion: apps/v1beta2
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
   name: {{ template "lemp.fullname" . }}-db
   labels:
@@ -8,11 +8,14 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
+  serviceName: {{ template "lemp.name" . }}
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       app: {{ template "lemp.name" . }}-db
+      chart: {{ template "lemp.chart" . }}
       release: {{ .Release.Name }}
+      heritage: {{ .Release.Service }}
   template:
     metadata:
       labels:
@@ -35,3 +38,19 @@ spec:
               secretKeyRef:
                 name: {{ template "lemp.fullname" . }}-secrets
                 key: MARIADB_ROOT_PASSWORD
+          volumeMounts:
+            - name: {{ template "lemp.fullname" . }}-data
+              mountPath: /bitnami
+    volumeClaimTemplates:
+      - metadata:
+          name: {{ template "lemp.fullname" . }}-data
+          labels:
+            app: {{ template "lemp.name" . }}
+            chart: {{ template "lemp.chart" . }}
+            release: {{ .Release.Name }}
+            heritage: {{ .Release.Service }}
+        spec:
+          accessModes: [ "ReadWriteOnce" ]
+          resources:
+            requests:
+              storage: 3Gi
