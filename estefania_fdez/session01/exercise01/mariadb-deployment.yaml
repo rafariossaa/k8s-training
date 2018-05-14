@@ -1,11 +1,11 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: mariadb-deployment
-  namespace: exercise-01
   labels:
     app: mariadb
     service: database
+  name: mariadb-deployment
+  namespace: exercise-01
 spec:
   replicas: 2
   template:
@@ -15,24 +15,29 @@ spec:
         service: database
     spec:
       containers:
-      - image: bitnami/mariadb:latest
-        name: mariadb
-        env:
-          - name: MARIADB_HOST
-            valueFrom:
-            configMapKeyRef:
-              name: wordpress-mariadb-config-map
-              key: mariadb_host
-          - name: MARIADB_ROOT_USER
-            valueFrom:
-            secretKeyRef:
-              name: wordpress-secrets
-              key: mariadb_root_user
-          - name: MARIADB_ROOT_PASSWORD
-            valueFrom:
-            secretKeyRef:
-              name: wordpress-secrets
-              key: mariadb_root_password
-        ports:
-          - containerPort: 3306
-            name: mariadb
+        -
+          env:
+            -
+              configMapKeyRef:
+                key: mariadb_host
+                name: wordpress-mariadb-config-map
+              name: MARIADB_HOST
+              valueFrom: ~
+            -
+              name: MARIADB_ROOT_USER
+              secretKeyRef:
+                key: mariadb_root_user
+                name: wordpress-secrets
+              valueFrom: ~
+            -
+              name: MARIADB_ROOT_PASSWORD
+              secretKeyRef:
+                key: mariadb_root_password
+                name: wordpress-secrets
+              valueFrom: ~
+          image: "bitnami/mariadb:latest"
+          name: mariadb
+          ports:
+            -
+              containerPort: 3306
+              name: mariadb

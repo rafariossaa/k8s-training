@@ -1,11 +1,12 @@
+---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: wordpress-canary-deployment
-  namespace: exercise-02
   labels:
     app: wordpress
     track: canary
+  name: wordpress-canary-deployment
+  namespace: exercise-02
 spec:
   replicas: 2
   template:
@@ -14,40 +15,46 @@ spec:
         app: wordpress
     spec:
       containers:
-      - image: bitnami/wordpress:4.9.5
-        name: wordpress
-        env:
-          - name: MARIADB_HOST
-            valueFrom:
-              configMapKeyRef:
-                name: wordpress-mariadb-config-map
-                key: mariadb_host
-          - name: MARIADB_DATABASE
-            valueFrom:
-              configMapKeyRef:
-                name: wordpress-mariadb-config-map
-                key: mariadb_database
-          - name: WORDPRESS_USERNAME
-            valueFrom:
-              configMapKeyRef:
-                name: wordpress-mariadb-config-map
-                key: wordpress_username
-          - name: WORDPRESS_DATABASE_NAME
-            valueFrom:
-              configMapKeyRef:
-                name: wordpress-mariadb-config-map
-                key: wordpress_database_name
-        ports:
-          - containerPort: 80
-            name: wordpress
-        readinessProbe:
-            httpGet:
-            path: /wp-admin
-            port: http
+        -
+          env:
+            -
+              name: MARIADB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: mariadb_host
+                  name: wordpress-mariadb-config-map
+            -
+              name: MARIADB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  key: mariadb_database
+                  name: wordpress-mariadb-config-map
+            -
+              name: WORDPRESS_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: wordpress_username
+                  name: wordpress-mariadb-config-map
+            -
+              name: WORDPRESS_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: wordpress_database_name
+                  name: wordpress-mariadb-config-map
+          image: "bitnami/wordpress:4.9.5"
+          livenessProbe:
+            httpGet: ~
             initialDelaySeconds: 15
-        livenessProbe:
-            httpGet:
             path: /wp-admin
-            port: http
-            initialDelaySeconds: 15
             periodSeconds: 5
+            port: http
+          name: wordpress
+          ports:
+            -
+              containerPort: 80
+              name: wordpress
+          readinessProbe:
+            httpGet: ~
+            initialDelaySeconds: 15
+            path: /wp-admin
+            port: http
