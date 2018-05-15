@@ -1,0 +1,5 @@
+apiVersion: v1
+appVersion: "1.0"
+description: A Helm chart for k8s-training/session02/exercise-01
+name: lemp
+version: 0.1.0

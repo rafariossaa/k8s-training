@@ -1,0 +1,7 @@
+apiVersion: v1
+data:
+  MARIADB_DATABASE: {{ default "test" .Values.mariadb.mariadbDatabase | quote }}
+  MARIADB_USER: {{ default "user" .Values.mariadb.mariadbUser | quote }}
+kind: ConfigMap
+metadata:
+  name: {{ template "mariadb.fullname" . }}

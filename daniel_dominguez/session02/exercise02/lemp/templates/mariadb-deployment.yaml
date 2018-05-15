@@ -1,0 +1,90 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-{{ template "mariadb.fullname" . }}
+  labels:
+    app: {{ template "mariadb.fullname" . }}
+spec:
+  ports:
+  - port: 80
+    name: web
+  clusterIP: None
+  selector:
+    app: {{ template "mariadb.fullname" . }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: {{ template "mariadb.fullname" . }}
+  name: {{ template "mariadb.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "mariadb.fullname" . }}
+  serviceName: nginx-{{ template "mariadb.fullname" . }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ template "mariadb.fullname" . }}
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: {{ template "mariadb.fullname" . }}
+        - secretRef:
+            name: {{ template "mariadb.fullname" . }}
+        name: mariadb
+        image: bitnami/mariadb:latest
+        imagePullPolicy: {{ .Values.mariadb.imagePullPolicy | quote }}
+        livenessProbe:
+          exec:
+            command:
+            - "mysqladmin"
+            - "ping"
+            - "-u$MARIADB_USER"
+            - "-p$MARIADB_PASSWORD"
+          failureThreshold: 3
+          initialDelaySeconds: 90
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - "mysqladmin"
+            - "ping"
+            - "-u$MARIADB_USER"
+            - "-p$MARIADB_PASSWORD"
+          failureThreshold: 3
+          initialDelaySeconds: 90
+          periodSeconds: 10
+          timeoutSeconds: 5
+        ports:
+        - containerPort: 3306
+          name: mysql
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /bitnami/mariadb
+          name: data
+      {{- if .Values.mariadb.securitySettings.enabled }}
+      securityContext:
+        runAsUser: {{ .Values.mariadb.securitySettings.runAsUser }}
+        fsGroup: {{ .Values.mariadb.securitySettings.fsGroup }}
+      {{- end}}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: [ {{ .Values.mariadb.persistence.accessMode | quote }} ]
+{{- if .Values.mariadb.persistence.storageClass }}
+{{- if (eq "-" .Values.mariadb.persistence.storageClass) }}
+      storageClassName: ""
+{{- else }}
+      storageClassName: "{{ .Values.mariadb.persistence.storageClass }}"
+{{- end }}
+{{- end }}
+      resources:
+        requests:
+          storage: {{ .Values.mariadb.persistence.size | quote }}
