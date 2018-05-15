@@ -1,0 +1,15 @@
+﻿apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: wordpress
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: cookie
+spec:
+  rules:
+  - host: wordpress-01.35.171.157.107.nip.io
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: wordpress
+          servicePort: 80
