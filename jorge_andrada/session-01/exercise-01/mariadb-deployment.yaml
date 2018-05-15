@@ -1,0 +1,45 @@
+# Deployment MariaDB
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: mariadb-deployment
+  namespace: exercise-01
+  labels:
+    app: wordpress
+    type: database
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        type: database
+    spec:
+      containers:
+        - name: mariadb
+          image: bitnami/mariadb:10.1
+          ports:
+            - containerPort: 3306
+              name: puerto-db
+          env:
+            - name: MARIADB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config-exercise
+                  key: mariadb_user
+            - name: MARIADB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config-exercise
+                  key: mariadb_database
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-exercise
+                  key: passsword_db
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-exercise
+                  key: passsword_db_root
