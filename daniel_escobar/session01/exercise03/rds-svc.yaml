@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: rds-svc
+  namespace: exercise-03
+  labels:
+    app: rds
+spec:
+  selector: 
+    app: rds
+  type: ExternalName
+  externalName: kubernetes-training.cfxyxg2jnovx.us-east-1.rds.amazonaws.com  
+    
