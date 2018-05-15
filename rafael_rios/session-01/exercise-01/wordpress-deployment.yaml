@@ -1,0 +1,33 @@
+﻿apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: exercise-01
+  labels: 
+    exercise: "01"
+    rol: web-wp
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels: 
+        exercise: "01"
+        rol: web-wp
+    spec:
+      containers:
+      - image: bitnami/wordpress:latest
+        envFrom:
+        - configMapRef:
+            name: wordpress-cm
+        name: wordpress
+        ports:
+        - name: wp-http
+          containerPort: 80
+        - name: wp-https
+          containerPort: 443
+        env:
+        - name: WORDPRESS_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wordpress-secrets
+              key: WORDPRESS_DATABASE_PASSWORD

@@ -1,0 +1,14 @@
+﻿apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: wp-mariadb
+  namespace: exercise-01
+spec:
+  type: ClusterIP
+  ports:
+  - name: mariadb-port
+    port: 3306
+    targetPort: mariadb-port
+  selector:
+    exercise: "01"
+    rol: db-wp
