@@ -1,0 +1,2 @@
+I've used labels to distinguish between frontend (blog) and backend (database). Also used a label to distinguish between stable and canary deployments.
+The commands.bash file can be safely run to create everything from scratch.
