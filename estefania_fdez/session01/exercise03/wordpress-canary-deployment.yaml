@@ -1,0 +1,102 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: wordpress
+    track: canary
+  name: wordpress-canary-deployment
+  namespace: exercise-03
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+        -
+          image: "bitnami/wordpress:4.9.5"
+      env:
+        -
+          name: MARIADB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              key: mariadb_database
+              name: wordpress-mariadb-config-map
+        -
+          name: WORDPRESS_USERNAME
+          valueFrom:
+            secretKeyRef:
+              key: wp_username
+              name: wordpress-secrets
+        -
+          name: WORDPRESS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: wp_password
+              name: wordpress-secrets
+        -
+          name: WORDPRESS_BLOG_NAME
+          valueFrom:
+            secretKeyRef:
+              key: wp_blog_name
+              name: wordpress-secrets
+        -
+          name: WORDPRESS_FIRST_NAME
+          valueFrom:
+            secretKeyRef:
+              key: wp_first_name
+              name: wordpress-secrets
+        -
+          name: WORDPRESS_LAST_NAME
+          valueFrom:
+            secretKeyRef:
+              key: wp_last_name
+              name: wordpress-secrets
+        -
+          name: WORDPRESS_LAST_NAME
+          valueFrom:
+            secretKeyRef:
+              key: wp_last_name
+              name: wordpress-secrets
+        -
+          name: WORDPRESS_HOSTNAME
+          valueFrom:
+            secretKeyRef:
+              key: wp_hostname
+              name: wordpress-secrets
+        -
+          name: DATABASE_NAME
+          valueFrom:
+            secretKeyRef:
+              key: database_name
+              name: wordpress-secrets
+        -
+          name: DATABASE_USER
+          valueFrom:
+            secretKeyRef:
+              key: database_user
+              name: wordpress-secrets
+        -
+          name: DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              key: database_password
+              name: wordpress-secrets
+      livenessProbe:
+        httpGet: ~
+        initialDelaySeconds: 15
+        path: /wp-admin
+        periodSeconds: 5
+        port: http
+      name: wordpress
+      ports:
+        -
+          containerPort: 80
+          name: wordpress
+      readinessProbe:
+        httpGet: ~
+        initialDelaySeconds: 15
+        path: /wp-admin
+        port: http
