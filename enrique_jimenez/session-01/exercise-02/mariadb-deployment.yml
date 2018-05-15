@@ -1,0 +1,42 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mariadb
+  namespace: exercise-02
+  labels:
+    app: mariadb
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb
+        image: bitnami/mariadb:latest
+        env:
+          - name: MARIADB_ROOT_USER
+            valueFrom:
+              secretKeyRef:
+                name: mariadb-credentials
+                key: username
+          - name: MARIADB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mariadb-credentials
+                key: password
+          - name: MARIADB_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: mariadb-configmap
+                key: database
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+        readinessProbe:
+          tcpSocket:
+            port: 3306
+        ports:
+          - containerPort: 3306
+            name: mysql
