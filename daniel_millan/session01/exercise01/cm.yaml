@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress-mariadb-config
+  namespace: exercise-01
+data:
+  wordpress.mariadb.host: mariadb
+  database.user: bn_wordpress
+  database.name: bitnami_wordpress
+  wp.user: DRM
+  wp.blog: DRM-BLOG
