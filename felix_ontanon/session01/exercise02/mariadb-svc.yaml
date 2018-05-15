@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+  namespace: exercise-02
+  labels:
+    app: wpblog
+    tier: database
+spec:
+  type: ClusterIP
+  ports:
+  - name: mysqlport
+    port: 3306
+    targetPort: 3306
+  selector:
+    tier: database

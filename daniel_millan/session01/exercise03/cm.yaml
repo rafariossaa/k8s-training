@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress-mariadb-config
+  namespace: exercise-03
+data:
+  wordpress.log.level: --log-level=trace
+  wordpress.mariadb.host: rds-service
+  database.user: k8s_training_user_18
+  database.name: k8s_training_db_18
+  wordpress.user.name: julio_iglesias
+  wordpress.user.first: Julio
+  wordpress.user.last: Iglesias de la Cueva
+  wordpress.blog.name: La vida sigue igual

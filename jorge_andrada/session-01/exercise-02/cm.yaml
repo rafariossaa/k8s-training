@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: env-config-exercise
+  namespace: exercise-02
+data:
+  mariadb_host: mariadb-service
+  mariadb_port: "3306"
+  mariadb_user: bn_wordpress
+  mariadb_database: bitnami_wordpress
+  wordpress_blog_name: "Bitnami k8s training Exercise-02"

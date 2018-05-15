@@ -1,0 +1,7 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mariadb
+  namespace: exercise03
+data:
+  database: k8s_training_db_10

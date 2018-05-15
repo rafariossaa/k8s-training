@@ -1,0 +1,65 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: exercise-01
+  labels:
+    app: wordpress
+    exercise: "01"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      # https://hub.docker.com/r/bitnami/wordpress/
+      - name: wordpress
+        image: bitnami/wordpress:latest
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-config
+              key: wp_allow_empty_password
+        - name: MARIADB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-config
+              key: mariadb_host
+        - name: MARIADB_PORT_NUMBER
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-config
+              key: mariadb_port
+        - name: WORDPRESS_DATABASE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-config
+              key: database_name
+        - name: WORDPRESS_DATABASE_USER
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-config
+              key: database_user
+        - name: WORDPRESS_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secrets
+              key: mariadb-password
+        - name: WORDPRESS_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-config
+              key: wp_user
+        - name: WORDPRESS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wordpress-secrets
+              key: wordpress-password
+        ports:
+        - name: http
+          containerPort: 80
+        - name: https
+          containerPort: 443

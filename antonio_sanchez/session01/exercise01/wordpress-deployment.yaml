@@ -1,0 +1,56 @@
+﻿apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wordpress-deployment
+  namespace: exercise01
+  labels:
+    app: wordpress
+    type: web
+    tier: frontend
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        type: web
+        tier: frontend
+    spec:
+      containers:
+        - name: wordpress
+          image: bitnami/wordpress:latest
+          ports:
+            - containerPort: 80
+              name: http-port
+            - containerPort: 443
+              name: https-port
+          env:
+            - name: MARIADB_HOST
+              value: service-mariadb
+            - name: MARIADB_PORT_NUMBER
+              value: "3306"
+            - name: WORDPRESS_DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb
+                  key: user
+            - name: WORDPRESS_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mariadb
+                  key: password
+            - name: WORDPRESS_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: mariadb
+                  key: database
+            - name: WORDPRESS_BLOG_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: wordpress
+                  key: blog
+            - name: WORDPRESS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wordpress
+                  key: password

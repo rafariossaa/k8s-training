@@ -1,0 +1,20 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: wordpress-ingress-redirect
+  namespace: exercise-03
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /wp-admin
+spec:
+  tls:
+  - secretName: tls
+    hosts:
+    - wordpress-exercise-03.com
+  rules:
+  - host: wordpress-exercise-03.com
+    http:
+      paths:
+      - path: /my-custom-admin/
+        backend:
+          serviceName: wordpress
+          servicePort: http-server

@@ -1,0 +1,19 @@
+﻿apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: service-mariadb
+  namespace: exercise03
+  labels:
+    app: wordpress
+    type: database
+    tier: backend
+spec:
+  selector:
+    app: wordpress
+    type: database
+    tier: backend
+  ports:
+  - port: 3306
+    targetPort: db-port
+  type: ExternalName
+  externalName: kubernetes-training.cfxyxg2jnovx.us-east-1.rds.amazonaws.com

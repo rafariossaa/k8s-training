@@ -1,0 +1,78 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wordpress-deployment-canary
+  namespace: exercise-02
+  labels:
+    app: wordpress
+    service: frontend
+spec:
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        service: frontend
+        tier: canary
+    spec:
+      containers:
+      - image: bitnami/wordpress:4.9.5
+        name: wordpress
+        env:
+        - name: MARIADB_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-mariadb-config
+              key: wordpress.mariadb.host
+        - name: WORDPRESS_DATABASE_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-mariadb-config
+              key: database.name
+        - name: WORDPRESS_DATABASE_USER
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-mariadb-config
+              key: database.user
+        - name: WORDPRESS_USERNAME
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-mariadb-config
+              key: wp.user
+        - name: WORDPRESS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wp-password
+              key: password
+        - name: WORDPRESS_BLOG_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-mariadb-config
+              key: wp.blog
+        - name: WORDPRESS_DATABASE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wp-mariadb-password
+              key: password
+        ports:
+        - containerPort: 80
+          name: wordpress          
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+            scheme: HTTP
+          initialDelaySeconds: 30
+          timeoutSeconds: 25
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            scheme: HTTP
+            port: 80
+          initialDelaySeconds: 30
+          timeoutSeconds: 25
+          periodSeconds: 30
+          successThreshold: 1
+          failureThreshold: 10

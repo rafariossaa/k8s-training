@@ -1,0 +1,22 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: wordpress-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      rewrite ^/my-custom-admin/(.*)$ /wp-admin/ permanent;
+spec:
+  tls:
+    - hosts:
+      - wordpress-exercise-03.com
+      secretName: tls-store
+  rules:
+  - host: wordpress-exercise-03.com
+    http:
+      paths:
+        - path: /
+          backend:
+            serviceName: wordpress-svc
+            servicePort: http

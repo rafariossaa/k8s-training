@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress-config
+  namespace: exercise-02
+data:
+  wp_allow_empty_password: "yes"
+  mariadb_host: "mariadb"
+  mariadb_port: "3306"
+  database_name: "my_wp"
+  database_user: "my_db_user"
+  wp_user: "my_wp_user"

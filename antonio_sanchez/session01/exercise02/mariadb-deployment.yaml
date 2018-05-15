@@ -1,0 +1,62 @@
+﻿apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: deployment-mariadb
+  namespace: exercise02
+  labels:
+    app: wordpress
+    type: database
+    tier: backend
+spec:
+  revisionHistoryLimit: 2
+  strategy:
+    type: RollingUpdate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        type: database
+        tier: backend
+    spec:
+      containers:
+      - image: bitnami/mariadb:latest
+        name: mariadb
+        ports:
+          - containerPort: 3306
+            name: db-port
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - mysqladmin -u root -p${MARIADB_ROOT_PASSWORD} version
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        env:
+          - name: MARIADB_USER
+            valueFrom:
+              secretKeyRef:
+                name: mariadb
+                key: user
+          - name: MARIADB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mariadb
+                key: password
+          - name: MARIADB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: mariadb
+                key: root_password
+          - name: MARIADB_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: mariadb
+                key: database
