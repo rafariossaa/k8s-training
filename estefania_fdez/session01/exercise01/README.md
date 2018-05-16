@@ -19,6 +19,3 @@ kubectl get all
 
 * Get all pods running
 kubectl get pods
-
-* Delete all pods
-kubectl delete pods --all
