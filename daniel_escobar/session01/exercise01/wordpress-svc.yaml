@@ -1,0 +1,17 @@
+apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: frontend
+  namespace: exercise-01
+  labels:
+    app: wordpress
+    type: frontend
+spec:
+  type: NodePort
+  ports:
+  - name: http-svc
+    port: 80
+    targetPort: http
+  selector: 
+    app: wordpress
+    type: frontend
