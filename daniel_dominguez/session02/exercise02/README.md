@@ -1,6 +1,6 @@
 # K8S-training. Session 02 - Exercise 02.
 
-The aim of this exercise is to congigure MariaDB as a StatefuSet deployment and add autoscaling to nginx-php deployment as an option.
+The aim of this exercise is to configure MariaDB as a StatefulSet deployment and add autoscaling to nginx-php deployment as an option.
 
 ## How to install this chart
 
