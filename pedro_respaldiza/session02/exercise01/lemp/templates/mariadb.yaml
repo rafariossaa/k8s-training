@@ -1,0 +1,65 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "lemp.fullname" . }}-mariadb
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.mariadb.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "lemp.name" . }}-mariadb
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.name" . }}-mariafdb
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Chart.Name }}database
+        image: "{{ .Values.mariadb.repository }}:{{ .Values.mariadb.tag }}"
+        imagePullPolicy: {{ .Values.mariadb.pullPolicy | quote }}
+        ports:
+        - name: db-port
+          containerPort: 3306
+        env:
+          - name: MARIADB_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "lemp.fullname" . }}
+                key: dbUser
+          - name: MARIADB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "lemp.fullname" . }}
+                key: dbPass
+          - name: MARIADB_DATABASE
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "lemp.fullname" . }}
+                key: dbName
+        livenessProbe:
+          exec:
+            command:
+             - mysqladmin
+             - ping
+          initialDelaySeconds: 90
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+              - mysqpladmin
+              - ping
+          initialDelaySeconds: 60
+          timeoutSeconds: 3
+        volumeMounts:
+        - name: persistence
+          mountPath: /bitnami/mariadb
+      volumes:
+        - name: persistence
+          persistenVolumeClaim:
+            claimName: {{ template "lemp.fullname" . }}

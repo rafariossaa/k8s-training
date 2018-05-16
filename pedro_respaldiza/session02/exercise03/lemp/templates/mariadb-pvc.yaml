@@ -1,0 +1,16 @@
+# App pvc
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ template "lemp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }} 
+    heritage: {{ .Release.Service }}
+spec:
+  accessModes:
+    - {{ .Values.pvcMariadb.accessModes }}
+  resources:
+    requests:
+      storage: {{ .Values.pvcMariadb.storange }}
