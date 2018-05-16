@@ -23,11 +23,9 @@ spec:
     spec:
       initContainers:
         - name: "descarga-app"
-          image: "busybox"
-          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
-          command: ["/bin/sh","-c"]
-          # Get the app from repository, delete files not wanted here
-          args: ["mkdir /app/php-sample-app; cd /app/php-sample-app; wget https://raw.githubusercontent.com/bitnami-labs/k8s-training-resources/master/php-sample-app/index.php; wget https://raw.githubusercontent.com/bitnami-labs/k8s-training-resources/master/php-sample-app/hpa-test.php"]
+          image: "docker.io/alpine/git:latest"
+          imagePullPolicy: {{ .Values.imageInit.pullPolicy }}
+          command: [ '/bin/sh', '-c' , 'git clone {{ .Values.git.repo }} {{ .Values.pathapp }}']
           volumeMounts:
             - name: {{ template "lemp.fullname" . }}-app
               mountPath: /app
@@ -50,7 +48,10 @@ spec:
           ports:
             - name: http
               containerPort: 9090
-              protocol: TCP                            
+              protocol: TCP
+          volumeMounts:
+            - name: {{ template "lemp.fullname" . }}-app
+              mountPath: /app
       volumes:
         - name: {{ template "lemp.fullname" . }}-vh
           configMap:
