@@ -1,0 +1,68 @@
+apiVersion: extensions/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "lemp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.name" . }}
+        chart: {{ template "lemp.chart" .}}
+    spec:
+      initContainers:
+      - name: git-clone-repository
+        image: "{{ .Values.gitImage.registry }}/{{ .Values.gitImage.repository }}:{{ .Values.gitImage.tag }}"
+        imagePullPolicy: {{ .Values.gitImage.pullPolicy | quote }}
+        command: [ '/bin/sh', '-c' , 'git clone {{ .Values.git.repository }} /app && cd /app && git checkout {{ .Values.git.revision }}']
+        volumeMounts:
+        - name: app
+          mountPath: /app
+      containers:
+      - name: {{ .Chart.Name }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        {{ if .Values.autoscaling.enabled }}
+        resources:
+          requests:
+            cpu: "{{ .Values.autoscaling.cpu }}"
+            memory: "{{ .Values.autoscaling.memory }}"
+        {{- end }}
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 90
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 60
+          timeoutSeconds: 3
+        volumeMounts:
+        - name: vhost
+          mountPath: /bitnami/nginx/conf/vhosts
+        - name: app
+          mountPath: /app
+      - name: php-fpm
+        image: bitnami/php-fpm
+        ports:
+        - name: http
+          containerPort: 9000
+        volumeMounts:
+        - name: app
+          mountPath: /app
+      volumes:
+        - name: vhost 
+          configMap:
+            name: {{ template "lemp.fullname" . }}
+        - name: app
+          emptyDir: {}
