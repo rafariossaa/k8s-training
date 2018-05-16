@@ -1,0 +1,41 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: mariadb
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "lemp.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: mariadb
+          image: bitnami/mariadb
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key:  mariaRootPassword
+            - name: MARIADB_USER
+              value: {{ .Values.mariadb.dbUser }}
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key:  mariaUserPassword
+            - name: MARIADB_DATABASE
+              value: {{ .Values.mariadb.dbName }}
+          ports:
+            - name: mariadb
+              containerPort: 3306

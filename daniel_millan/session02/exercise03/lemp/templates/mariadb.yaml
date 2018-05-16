@@ -1,0 +1,54 @@
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: mariadb
+  labels:
+    app: mariadb
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  serviceName: "mariadb"
+  selector:
+    matchLabels:
+      app: mariadb
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: mariadb
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: mariadb
+          image: bitnami/mariadb
+          env:
+            - name: MARIADB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key:  mariaRootPassword
+            - name: MARIADB_USER
+              value: {{ .Values.mariadb.dbUser }}
+            - name: MARIADB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets
+                  key:  mariaUserPassword
+            - name: MARIADB_DATABASE
+              value: {{ .Values.mariadb.dbName }}
+          ports:
+            - name: mariadb
+              containerPort: 3306
+          volumeMounts:
+            - name: data
+              mountPath: /bitnami
+    volumeClaimTemplates:
+      - metadata:
+          name: data
+        spec:
+          accessMode: ["ReadWriteOnce"]
+          storageClassName: "my-storage-class"
+          resources:
+            requests:
+              storage: 1Gi
