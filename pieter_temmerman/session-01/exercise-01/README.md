@@ -3,6 +3,9 @@
 
 ### Introduction
 
+KUBE_IP=54.167.167.9
+KUBECONFIG=/Users/pieter/Kubernetes/admin.conf
+
 The present exercise deploys a Wordpress site with MariaDB as it's backend.
 To set it up, we rely on several Kubernetes objects such as:
 

@@ -1,0 +1,84 @@
+# Default values for lemp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#GENERAL CONFIGURATION
+pullPolicy: IfNotPresent
+
+
+#FRONTEND CONFIGURATION
+frontend:
+  name: nginx-php-deployment
+  replicaCount: 1
+  persistence:
+    enabled: true
+    volume_size: 2Gi
+    mount_point: /data
+
+  #BEGIN NGINX CONFIGURATION
+  nginx:
+    name: nginx
+    port: 8080
+    image:
+      repository: bitnami/nginx
+      tag: latest
+    service:
+      type: ClusterIP
+      port: 80
+
+
+  # BEGIN PHP-FPM CONFIGURATION
+  php_fpm:
+    name: php-fpm
+    port: 9000
+    image:
+      repository: bitnami/php-fpm
+      tag: latest
+
+
+  #BEGIN GIT CONFIGURATION
+  git:
+    name: git
+    image:
+      repository: alpine/git
+      tag: latest
+    repository_url: https://github.com/bitnami-labs/k8s-training-resources.git
+
+
+
+
+#BACKEND CONFIGURATION
+backend:
+  name: mariadb-deployment
+  replicaCount: 1
+  persistence:
+    enabled: true
+    volume_size: 2Gi
+    mount_point: /var/lib/mysql
+
+  # BEGIN MARIADB CONFIGURATION
+  mariadb:
+    name: mariadb
+    image:
+      repository: bitnami/mariadb
+      tag: latest
+    settings:
+      database: mariatest
+      root_user: root
+      root_password: r00t
+      db_user: dbuser
+      db_password: dbpass
+
+#ACCESSIBILITY CONFIGURATION
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local

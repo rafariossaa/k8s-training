@@ -1,0 +1,80 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-frontend-depl
+  namespace: exercise-01
+  labels:
+    app: {{ default "nginx-php" .Values.frontend.name }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ default "1" .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ default "nginx-php" .Values.frontend.name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ default "nginx-php" .Values.frontend.name }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+        - name: "git-download"
+          image: {{ .Values.frontend.git.image.repository }}:{{ .Values.frontend.git.image.tag }}
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          command: ["git", "clone", {{ quote .Values.frontend.git.repository_url }}, {{ quote .Values.frontend.nginx.data_directory }} ]
+          volumeMounts:
+            - name: frontend-data
+              mountPath: {{ .Values.frontend.persistence.mount_point }}
+
+      containers:
+        - name: {{ .Values.frontend.nginx.name }}
+          image: "{{ .Values.frontend.nginx.image.repository }}:{{ .Values.frontend.nginx.image.tag }}"
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: https
+              containerPort: 443
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+            - name: frontend-data
+              mountPath: {{ .Values.frontend.persistence.mount_point }}
+            - name: frontend-config
+              mountPath: /bitnami/nginx/conf/vhosts/
+
+        - name: {{ .Values.frontend.php_fpm.name }}
+          image: "{{ .Values.frontend.php_fpm.image.repository }}:{{ .Values.frontend.php_fpm.image.tag }}"
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          ports:
+            - name: php-fpm
+              containerPort: 9000
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: php-fpm
+          readinessProbe:
+            tcpSocket:
+              port: php-fpm
+          volumeMounts:
+            - name: frontend-data
+              mountPath: {{ .Values.frontend.persistence.mount_point }}
+
+      volumes:
+        - name: frontend-config
+          configMap:
+            name: {{ template "lemp.fullname" . }}
+        - name: frontend-data
+          persistentVolumeClaim:
+            claimName: {{ template "lemp.fullname" . }}

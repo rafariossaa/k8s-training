@@ -1,0 +1,16 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "lemp.fullname" . }}
+  namespace: exercise-01
+  labels:
+    app: {{ default "nginx-php" .Values.frontend.name }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  accessModes:
+    - "ReadWriteOnce"
+  resources:
+    requests:
+      storage:{{ .Values.frontend.persistence.volume_size }}
