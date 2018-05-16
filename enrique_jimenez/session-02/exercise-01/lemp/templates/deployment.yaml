@@ -1,0 +1,83 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "lemp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "lemp.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: {{ template "lemp.fullname" . }}-app
+          persistentVolumeClaim:
+          claimName: {{ template "lemp.fullname" . }}-app
+        - name: {{ template "lemp.fullname" . }}-nginx
+          configMap:
+            name: {{ template "lemp.fullname" . }}
+            items:
+              - key: myapp.conf
+                path: myapp.conf
+      initContainers:
+        - name: getapp
+          image: alpine/git
+          command: ['git','clone', 'https://github.com/bitnami-labs/k8s-training-resources', '/app']
+          volumeMounts:
+            - mountPath: {{ .Values.appMountpoint }}
+              name: {{ template "lemp.fullname" . }}-app
+      containers:
+        - name: {{ .Chart.Name }}-php
+          image: "{{ .Values.imagePhp.repository }}:{{ .Values.imagePhp.tag }}"
+          imagePullPolicy: {{ .Values.imagePhp.pullPolicy }}
+          volumeMounts:
+            - mountPath: {{ .Values.appMountpoint }}
+              name: {{ template "lemp.fullname" . }}-app
+          ports:
+            - name: php
+              containerPort: 9000
+              protocol: TCP
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - mountPath: {{ .Values.appMountpoint }}
+              name: {{ template "lemp.fullname" . }}-app
+            - mountPath: {{ .Values.nginxConfigPath }}  
+              name: {{ template "lemp.fullname" . }}-nginx
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}

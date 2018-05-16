@@ -1,0 +1,51 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "lemp.fullname" . }}-mariadb
+  labels:
+    app: {{ template "lemp.name" . }}-mariadb
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCountMariadb }}
+  selector:
+    matchLabels:
+      app: {{ template "lemp.name" . }}-mariadb
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.name" . }}-mariadb
+        release: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: {{ template "lemp.fullname" . }}-data-mariadb
+          persistentVolumeClaim:
+          claimName: {{ template "lemp.fullname" . }}-mariadb
+      containers:
+      - name: {{ template "lemp.name" . }}-mariadb
+        image: "{{ .Values.imageMariadb.repository }}:{{ .Values.imageMariadb.tag }}"
+        imagePullPolicy: {{ .Values.imageMariadb.pullPolicy }}
+        volumeMounts:
+          - mountPath: {{ .Values.mariadbMountpoint }}
+            name: {{ template "lemp.fullname" . }}-data-mariadb
+        env:
+          - name: MARIADB_ROOT_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "lemp.fullname" . }}-mariadb
+                key: username
+          - name: MARIADB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "lemp.fullname" . }}-mariadb
+                key: password
+          - name: MARIADB_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: {{ template "lemp.fullname" . }}-mariadb
+                key: database
+        ports:
+          - containerPort: 3306
+            name: mysql
