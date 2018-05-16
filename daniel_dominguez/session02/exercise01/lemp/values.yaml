@@ -82,7 +82,7 @@ mariadb:
     fsGroup: 1001
   persistence:
     enabled: true
-    storageClass: "local-storage"
+#    storageClass: "local-storage"
     accessMode: ReadWriteOnce
     size: 8Gi
   imagePullPolicy: IfNotPresent
