@@ -1,0 +1,65 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ template "fullname" . }}-mariadb
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+  name: {{ template "fullname" . }}-mariadb
+spec:
+  replicas: {{ .Values.mariadb.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}-mariadb
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: {{ .Values.mariadb.strategyType }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}-mariadb
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: {{ template "fullname" . }}-mariadb
+        - secretRef:
+            name: {{ template "fullname" . }}-mariadb
+        name: {{ template "fullname" . }}-mariadb
+        image: "{{ .Values.mariadb.image }}"
+        imagePullPolicy:  {{ .Values.mariadb.imagePullPolicy | quote }}
+        ports:
+        - containerPort: 3306
+          name: mysql
+          protocol: TCP
+        livenessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        volumeMounts:
+        - mountPath: /bitnami/mariadb
+          name: data
+        - mountPath: /bitnami/mariadb/conf
+          name: custom-cnf
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001
+      volumes:
+      - name: custom-cnf
+        configMap:
+          name: {{ template "fullname" . }}-mariadb
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ template "fullname" . }}-mariadb
+
