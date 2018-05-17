@@ -54,6 +54,9 @@ spec:
           mountPath: /app
       - name: php-fpm
         image: bitnami/php-fpm
+        ports:
+        - name: http
+          containerPort: 9000
         volumeMounts:
         - name: app
           mountPath: /app
