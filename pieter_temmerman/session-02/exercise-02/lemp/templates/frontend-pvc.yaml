@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: {{ template "lemp.fullname" . }}-frontend
-  namespace: exercise-01
+  namespace: exercise-02
   labels:
     app: {{ default "nginx-php" .Values.frontend.name }}
     chart: {{ template "lemp.chart" . }}

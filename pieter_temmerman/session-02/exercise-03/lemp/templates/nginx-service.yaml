@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Release.Name }}-service
+  namespace: exercise-03
+  labels:
+    app: {{ default "nginx-php" .Values.frontend.name }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.frontend.nginx.service.type }}
+  ports:
+    - port: {{ .Values.frontend.nginx.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ default "nginx-php" .Values.frontend.name }}
+    release: {{ .Release.Name }}

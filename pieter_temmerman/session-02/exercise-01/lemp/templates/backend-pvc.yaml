@@ -1,11 +1,11 @@
-{{- if .Values.frontend.persistence }}
+{{- if .Values.backend.persistence.enabled }}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: {{ template "lemp.fullname" . }}-frontend
+  name: {{ template "lemp.fullname" . }}-backend
   namespace: exercise-01
   labels:
-    app: {{ default "nginx-php" .Values.frontend.name }}
+    app: {{ .Values.backend.name }}
     chart: {{ template "lemp.chart" . }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -14,5 +14,5 @@ spec:
     - "ReadWriteOnce"
   resources:
     requests:
-      storage: {{ .Values.frontend.persistence.volume_size }}
+      storage: {{ .Values.backend.persistence.volume_size }}
 {{- end }}
