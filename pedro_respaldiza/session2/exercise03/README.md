@@ -48,3 +48,6 @@ Saving 1 charts
 Downloading postgresql from repo https://kubernetes-charts.storage.googleapis.com/
 Deleting outdated charts
 ~~~
+---
+I suppose the Postgresql package should not go in the repository. So I add the tgz files in the gitignore list.
+---
