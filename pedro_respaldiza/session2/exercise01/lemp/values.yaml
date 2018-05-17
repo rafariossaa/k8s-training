@@ -36,9 +36,9 @@ pvcMariadb:
   storange: 10Gi
 
 secretsmariadb:
-  dbname: bm9tYnJlCg==
-  dbuser: dXNlcgo=
-  dbpass: aXVzZGpoMjMxCg==
+  dbname: nombre
+  dbuser: user
+  dbpass: iusdjh231
 
 service:
   type: ClusterIP
