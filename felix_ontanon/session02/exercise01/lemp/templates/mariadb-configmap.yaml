@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "mariadb.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    tier: database
+data:
+  {{- if .Values.mariadbDatabase }}
+  mariadb-database: {{ .Values.mariadbDatabase }}
+  {{- else }}
+  mariadb-database: "{{ .Values.mariadb.mariadbDatabase }}-{{ randAlphaNum 10 }}"
+  {{- end }}
+  {{- if .Values.mariadbUser }}
+  mariadb-user: {{ .Values.mariadbUser }}
+  {{- else }}
+  mariadb-user: "{{ .Values.mariadb.mariadbUser }}-{{ randAlphaNum 10 }}"
+  {{- end }}

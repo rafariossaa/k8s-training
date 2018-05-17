@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "sampleapp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    tier: frontend
+data:
+  myapp.conf: |
+    server {
+      listen 0.0.0.0:{{ .Values.sampleapp.nginxport }};
+      server_name {{ .Values.app.host }};
+
+      root {{ .Values.sampleapp.mountpath }}/php-sample-app;
+
+      location / {
+        try_files $uri $uri/index.php;
+      }
+    
+      location ~ \.php$ {
+        # As php and nginx are in the same pod, we can access php-fpm service through localhost
+        fastcgi_pass 127.0.0.1:{{ .Values.sampleapp.phpfpmport }};
+        fastcgi_index index.php;
+        include fastcgi.conf;
+      }
+    }

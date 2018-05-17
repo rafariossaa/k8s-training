@@ -1,0 +1,72 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "mariadb.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    tier: database
+spec:
+  replicas: {{ .Values.mariadb.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "lemp.name" . }}
+      release: {{ .Release.Name }}
+      tier: database
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.name" . }}
+        release: {{ .Release.Name }}
+        tier: database
+    spec:
+      # This is needed to prevent `EACCES: permission denied` error when trying to add a persistence volume
+      # Copied from bitami/mariadb chart
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+
+      containers:
+      - name: mariadb
+        image: "{{ .Values.mariadb.image.repository }}:{{ .Values.mariadb.image.tag }}"
+        imagePullPolicy: {{ .Values.mariadb.image.pullPolicy }}
+        ports:
+        - name: mysql
+          containerPort: {{ .Values.mariadb.mariadbPort }}
+        env:
+        - name: MARIADB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "lemp.fullname" . }}
+              key: mariadb-root-password
+        - name: MARIADB_DATABASE
+          value: mariadb-database
+        - name: MARIADB_USER
+          value: mariadb-user
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "lemp.fullname" . }}
+              key: mariadb-password
+        readinessProbe:
+          exec:
+            command:
+            - mysqladmin
+            - ping
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        volumeMounts:
+        - name: data
+          mountPath: /bitnami/mariadb
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ template "mariadb.fullname" . }}
