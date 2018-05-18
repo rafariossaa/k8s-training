@@ -12,7 +12,7 @@
 
 Add dependency in requirements.yaml under lemp folder
 
-Make dependency optional via configMap value postgres.enabled
+Make dependency optional via condition postgres.enabled
 
 ### Set values for postgresUser,Database and Password
 
