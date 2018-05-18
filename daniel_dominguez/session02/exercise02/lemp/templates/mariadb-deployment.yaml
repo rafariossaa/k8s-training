@@ -37,8 +37,8 @@ spec:
         - secretRef:
             name: {{ template "mariadb.fullname" . }}
         name: mariadb
-        image: bitnami/mariadb:latest
-        imagePullPolicy: {{ .Values.mariadb.imagePullPolicy | quote }}
+        image: "{{ .Values.mariadb.image.registry }}/{{ .Values.mariadb.image.repository }}:{{ .Values.mariadb.image.tag }}"
+        imagePullPolicy: {{ .Values.mariadb.image.imagePullPolicy | quote }}
         livenessProbe:
           exec:
             command:

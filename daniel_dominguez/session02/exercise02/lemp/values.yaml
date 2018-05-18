@@ -5,9 +5,21 @@
 replicaCount: 1
 
 image:
-  repository: nginx
-  tag: stable
-  pullPolicy: IfNotPresent
+  nginx:
+    registry: docker.io
+    repository: bitnami/nginx
+    tag: latest
+    pullPolicy: Always
+  php:
+    registry: docker.io
+    repository: bitnami/php-fpm
+    tag: latest
+    pullPolicy: Always
+  git:
+    registry: docker.io
+    repository: alpine/git
+    tag: latest
+    pullPolicy: Always
 
 service:
   type: ClusterIP
@@ -89,10 +101,13 @@ mariadb:
     fsGroup: 1001
   persistence:
     enabled: true
-#    storageClass: "local-storage"
     accessMode: ReadWriteOnce
     size: 8Gi
-  imagePullPolicy: IfNotPresent
+  image:
+    registry: docker.io
+    repository: bitnami/mariadb
+    tag: latest
+    imagePullPolicy: Always
   #set your own database/user below
   mariadbDatabase: database1
   mariadbUser: user1 
