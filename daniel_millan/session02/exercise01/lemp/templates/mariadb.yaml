@@ -20,7 +20,7 @@ spec:
     spec:
       containers:
         - name: mariadb
-          image: bitnami/mariadb
+          image: {{ .Values.mariadb.image }}
           env:
             - name: MARIADB_ROOT_PASSWORD
               valueFrom:

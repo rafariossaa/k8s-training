@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: vol-config-map
+  name: {{ .Values.configMap }}
 data:
   conf: "server {
   listen 0.0.0.0:8080;
   server_name myapp.com;
 
-  root /app/php-sample-app;
+  root /k8s-training-resources/php-sample-app;
 
   location / {
     try_files $uri $uri/index.php;

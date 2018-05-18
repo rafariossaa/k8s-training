@@ -3,10 +3,14 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
+
+configMap: vol-config-map
+
 hpa:
   enabled: true
   maxReplicas: 10
   minReplicas: 1
+  targetCpu: 50
 
 image:
   repository: nginx
@@ -31,11 +35,16 @@ ingress:
   #      - chart-example.local
 
 mariadb:
+  serviceName: mariadb
+  image: bitnami/mariadb
   enabled: true
   rootPassword: MTIzNA==
   dbName: app_db
   dbUser: app_user
   userPassword: MTIzNDU=
+
+storage:
+  className: my-storage-class
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious

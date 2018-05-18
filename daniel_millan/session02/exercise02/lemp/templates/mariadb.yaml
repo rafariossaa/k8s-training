@@ -8,7 +8,7 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
-  serviceName: "mariadb"
+  serviceName: {{ .Values.mariadb.serviceName }}
   selector:
     matchLabels:
       app: mariadb
@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: mariadb
-          image: bitnami/mariadb
+          image: {{ .Values.mariadb.image }}
           env:
             - name: MARIADB_ROOT_PASSWORD
               valueFrom:
@@ -48,7 +48,7 @@ spec:
           name: data
         spec:
           accessMode: ["ReadWriteOnce"]
-          storageClassName: "my-storage-class"
+          storageClassName: {{ .Values.storage.className }}
           resources:
             requests:
               storage: 1Gi

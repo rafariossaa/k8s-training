@@ -3,10 +3,13 @@
 # Declare variables to be passed into your templates.
 
 replicaCount: 1
+
+configMap: vol-config-map
+
 hpa:
   enabled: true
-  maxReplicas: 1
-  minReplicas: 10
+  maxReplicas: 10
+  minReplicas: 1
   targetCpu: 50
 
 image:
@@ -38,6 +41,8 @@ postgresql:
   postgresDatabase: my-database
 
 mariadb:
+  serviceName: mariadb
+  image: bitnami/mariadb
   enabled: true
   rootPassword: MTIzNA==
   dbName: app_db

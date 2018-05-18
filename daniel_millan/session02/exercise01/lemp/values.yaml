@@ -4,6 +4,8 @@
 
 replicaCount: 1
 
+configMap: vol-config-map
+
 image:
   repository: nginx
   tag: stable
@@ -27,6 +29,8 @@ ingress:
   #      - chart-example.local
 
 mariadb:
+  serviceName: mariadb
+  image: bitnami/mariadb
   enabled: true
   rootPassword: MTIzNA==
   dbName: app_db

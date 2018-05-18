@@ -22,24 +22,20 @@ spec:
       volumes:
         - name: data
           hostPath:
-            path: /app/php-sample-app/
+            path: /app
         - name: config-vol
           configMap:
-            name: vol-config-map
+            name: {{ .Values.configMap }}
             items:
               - key: conf
                 path: myapp.conf
       initContainers:
         - name: download-php
-          image: busybox
-          command: 
-            - 'wget'
-            - '-O'
-            - '/app/php-sample-app/index.php'
-            - 'https://raw.githubusercontent.com/bitnami-labs/k8s-training-resources/master/php-sample-app/index.php'
+          image: alpine/git
+          command: ["sh", "-c", "rm -rf /app/*; git clone https://github.com/bitnami-labs/k8s-training-resources/ /app; cd /app; git pull;"]        
           volumeMounts:
             - name: data
-              mountPath: /app/php-sample-app/
+              mountPath: /app
       containers:       
         - name: php
           image: bitnami/php-fpm
@@ -49,7 +45,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: data
-              mountPath: /app/php-sample-app/
+              mountPath: /app
           resources:
 {{ toYaml .Values.resources | indent 12 }}
         - name: {{ .Chart.Name }}
@@ -72,7 +68,7 @@ spec:
             - name: config-vol
               mountPath: /bitnami/nginx/conf/vhosts
             - name: data
-              mountPath: /app/php-sample-app/
+              mountPath: /app
           resources:
 {{ toYaml .Values.resources | indent 12 }}
     {{- with .Values.nodeSelector }}
