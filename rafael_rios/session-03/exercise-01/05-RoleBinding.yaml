@@ -1,0 +1,111 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: devs-see-resources
+  namespace: team-vision
+subjects:
+  - kind: Group
+    name: devs
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: rol-dev
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: devs-see-resources
+  namespace: team-api
+subjects:
+  - kind: Group
+    name: devs
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: rol-dev
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: api-create-resources
+  namespace: team-api
+subjects:
+  - kind: Group
+    name: api
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: rol-api
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: vision-create-resources
+  namespace: team-vision
+subjects:
+  - kind: Group
+    name: vision 
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: rol-vision-member
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tech-lead-create-resources
+  namespace: team-vision
+subjects:
+  - kind: Group
+    name: teach-leads
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: rol-teach-leads-member
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tech-lead-create-resources
+  namespace: team-api
+subjects:
+  - kind: Group
+    name: teach-leads
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: rol-teach-leads-member
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tech-lead-create-resources
+  namespace: team-vision
+subjects:
+  - kind: Group
+    name: sre
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: rol-sres
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: tech-lead-create-resources
+  namespace: team-api
+subjects:
+  - kind: Group
+    name: sre
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: Role
+  name: rol-sres
+  apiGroup: rbac.authorization.k8s.io

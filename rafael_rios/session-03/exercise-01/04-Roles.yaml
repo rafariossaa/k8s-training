@@ -1,0 +1,100 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: rol-dev
+  namespace: team-vision
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: rol-dev
+  namespace: team-api
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: rol-api
+  namespace: team-api
+rules:
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["create", "get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: rol-vision-member
+  namespace: team-vision
+rules:
+  - apiGroups: [""]
+    resources: ["pod", "deployment", "replicasets", "service", "job", "ingress","daemonset","cronjob","configmaps","autoscaler"]
+    verbs: ["create", "get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: rol-teach-leads-member
+  namespace: team-api
+rules:
+  - apiGroups: [""]
+    resources: ["pod", "deployment", "replicasets", "service", "job", "ingress","daemonset","cronjob","configmaps","autoscaler"]
+    verbs: ["create", "get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: rol-teach-leads-member
+  namespace: team-vision
+rules:
+  - apiGroups: [""]
+    resources: ["pod", "deployment", "replicasets", "service", "job", "ingress","daemonset","cronjob","configmaps","autoscaler"]
+    verbs: ["create", "get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: rol-sres
+  namespace: team-api
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create", "get", "list", "delete"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: Role
+metadata:
+  name: rol-sres
+  namespace: team-vision
+rules:
+  - apiGroups: [""]
+    resources: ["secrets"]
+    verbs: ["create", "get", "list", "delete"]
+
+
+# namespace "team-vision":
+# namespace "team-api":
+# Users:
+#   Developer: 
+#     user: jsalmeron
+#     group: tech-lead, dev
+#   Developer:
+#     user: juan
+#     group: dev, api
+#   Administrator:
+#     user: dbarranco
+#     group: sre
+
+# - devs can see resources in both spaces
+# - api members can create resources in team-api
+# - vision members can create/delete/resources in team-vision (except secrets)
+# - teach-leads members can create/delete/resources in both spaces (except secrets)
+# - ONLY sres can create/delete/access secrets
+

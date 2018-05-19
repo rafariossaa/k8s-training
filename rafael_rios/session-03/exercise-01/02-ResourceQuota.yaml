@@ -1,0 +1,23 @@
+# The host have: 
+#   CPU: 2x Cores Intel(R) Xeon(R) CPU E5-2676 v3 @ 2.40GHz
+#   RAM: 4GB
+
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-vision-resourcequota
+  namespace: team-vision
+spec:
+  hard:
+    requests.cpu: 1.6
+    requests.memory: 3200m
+---
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-vision-resourcequota
+  namespace: team-vision
+spec:
+  hard:
+    requests.cpu: 0.4
+    requests.memory: 800m
