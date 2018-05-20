@@ -1,0 +1,85 @@
+# Default values for lemp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+intcont:
+  deploy:
+    name: deploy
+    image: alpine/git
+    command: "[ 'sh', '-c', 'git clone https://github.com/bitnami-labs/k8s-training-resources/ /app']"
+
+containers:
+  web:
+    name: nginx
+    image: "bitnami/nginx:latest"
+    pullPolicy: IfNotPresent
+  php:
+    name: php-fpm
+    image: "bitnami/php-fpm:latest"
+    pullPolicy: IfNotPresent
+  db:
+    name: mariadb
+    image: "bitnami/mariadb:latest"
+    pullPolicy: IfNotPresent
+
+pvc:
+  web:
+    accessmode: "ReadWriteOnce"
+    storage: "2Gi"
+  db:
+    accessmode: "ReadWriteOnce"
+    storage: "2Gi"
+
+service:
+  web:
+    type: NodePort
+    port: 80
+  db:
+    type: NodePort
+    port: 3306
+
+ingress:
+  enabled: true
+  annotations: {}
+  kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - lemp-exercise-01.com
+  #tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+hpa:
+  enable: true
+  maxrep: 5
+  minrep: 1
+  cpuperc: 50
+
+postgresql:
+  enable: true
+  postgresUser: lemp
+  postgresPassword: P4ssw0rd.
+  postgresDatabase: lempdb
+
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

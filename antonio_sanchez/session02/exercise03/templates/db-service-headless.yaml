@@ -1,0 +1,19 @@
+﻿apiVersion: "v1"
+kind: "Service"
+metadata:
+  name: db-{{ template "lemp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  ports:
+    - port: {{ .Values.service.db.port }}
+      targetPort: db-port
+      protocol: TCP
+      name: db-port
+  clusterIP: None 
+  selector:
+    app: {{ template "lemp.name" . }}
+    release: {{ .Release.Name }}
