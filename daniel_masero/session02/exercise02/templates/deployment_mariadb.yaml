@@ -16,10 +16,14 @@ spec:
         release: {{ .Release.Name }}
         tier: {{.Values.label_backend}}
     spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
       containers:
       - name: {{.Values.image_mariadb.name}}-{{ .Chart.Name }}
         image: "{{ .Values.image_mariadb.repository }}:{{ .Values.image_mariadb.tag }}"
         imagePullPolicy: {{ .Values.image_mariadb.pullPolicy }}
+
         env: 
           - name: ALLOW_EMPTY_PASSWORD
             valueFrom:
@@ -43,7 +47,7 @@ spec:
                 key: dbpassword
         ports:
           - name: mariadb-server
-            containerPort: 3306      
+            containerPort: {{.Values.image_mariadb.port}}      
         readinessProbe:
           exec:
             command:
@@ -68,15 +72,10 @@ spec:
           - mountPath: /bitnami
             name: volumesdb
             subPath: mariadb
-  volumeClaimTemplates:
-  - metadata:
-      name: volumesdb
-    spec:
-      accessModes: [ "ReadWriteOnce" ]
-      storageClassName: {{ .Values.persistence.storage_class }}
-      resources:
-        requests:
-          storage: {{ .Values.persistence.size_maria_db }}
+      volumes:
+      - name: volumesdb
+        persistentVolumeClaim:
+          claimName: {{ template "lemp.fullname" . }}
 {{ end }}
     resources:
 {{ toYaml .Values.resources | indent 12 }}

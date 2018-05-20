@@ -9,7 +9,7 @@ metadata:
         tier: {{.Values.label_backend}}s
 spec:
   ports:
-  - port: 3306
+  - port: {{.Values.image_mariadb.port}}
     name: mariadb-server
   clusterIP: None
   selector:

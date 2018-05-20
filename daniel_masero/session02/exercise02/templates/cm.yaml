@@ -19,7 +19,7 @@ data:
 
       location ~ \.php$ {
         # As php and nginx are in the same pod, we can access php-fpm service through localhost
-        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_pass 127.0.0.1:{{ .Values.image_php.port }};
         fastcgi_index index.php;
         include fastcgi.conf;
       }

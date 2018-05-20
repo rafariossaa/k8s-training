@@ -55,7 +55,7 @@ spec:
           imagePullPolicy: {{ .Values.image_php.pullPolicy }}
           ports:
             - name: php-fpm
-              containerPort: 9000
+              containerPort: {{.Values.image_php.port}}
           volumeMounts: 
             - mountPath: /app
               name: app

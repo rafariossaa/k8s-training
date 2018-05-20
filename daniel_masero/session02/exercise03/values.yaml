@@ -6,7 +6,7 @@ postgresql:
   postgresUser: user
   postgresPassword: password
   postgresDatabase: db_postgresql
-
+  
 autoscale:
   enabled: true
   minReplicas: 1 
@@ -28,7 +28,7 @@ image_php:
   repository: bitnami/php-fpm
   tag: latest
   pullPolicy: IfNotPresent
-
+  port: 9000
 image_git:
   registry: docker.io
   repository: alpine/git
@@ -40,14 +40,12 @@ image_mariadb:
   repository: bitnami/mariadb
   tag: latest
   pullPolicy: IfNotPresent
+  port: 3306
 
 persistence:
   enabled: true
   name_volumen: db-volumen
   size: 1Gi 
-  size_maria_db: 100Mi
-  path_local: /tmp
-  storage_class: thin-disk
 
 db:
   allow_empty_password: "yes"

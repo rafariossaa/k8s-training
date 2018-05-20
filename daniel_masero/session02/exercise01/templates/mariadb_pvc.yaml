@@ -13,20 +13,4 @@ spec:
   resources:
     requests:
       storage: {{ .Values.persistence.size }}
-
----
-kind: PersistentVolume
-apiVersion: v1
-metadata:
-  name: {{ .Values.persistence.name_volumen }}
-  labels:
-    type: {{ .Values.persistence.storage_class }}
-spec:
-  storageClassName: {{ .Values.persistence.storage_class }}
-  capacity:
-    storage: {{ .Values.persistence.size }}
-  accessModes:
-    - ReadWriteOnce
-  hostPath:
-    path: {{ .Values.persistence.path_local | quote }}
-{{- end }}
+  {{- end }}

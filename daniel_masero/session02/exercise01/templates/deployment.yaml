@@ -35,7 +35,7 @@ spec:
           imagePullPolicy: {{ .Values.image_nginx.pullPolicy }}
           ports:
             - name: http
-              containerPort: 8080
+              containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -55,7 +55,7 @@ spec:
           imagePullPolicy: {{ .Values.image_php.pullPolicy }}
           ports:
             - name: php-fpm
-              containerPort: 9000
+              containerPort: {{ .Values.image_php.port }}
           volumeMounts: 
             - mountPath: /app
               name: app

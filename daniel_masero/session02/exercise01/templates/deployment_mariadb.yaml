@@ -13,7 +13,9 @@ spec:
         release: {{ .Release.Name }}
         tier: {{.Values.label_backend}}
     spec:
-
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
       containers:
       - name: {{.Values.image_mariadb.name}}-{{ .Chart.Name }}
         image: "{{ .Values.image_mariadb.repository }}:{{ .Values.image_mariadb.tag }}"
@@ -41,7 +43,7 @@ spec:
                 key: dbpassword
         ports:
           - name: mariadb-server
-            containerPort: 3306      
+            containerPort: {{.Values.image_mariadb.port}}      
         readinessProbe:
           exec:
             command:

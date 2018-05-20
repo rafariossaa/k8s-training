@@ -17,6 +17,7 @@ image_php:
   repository: bitnami/php-fpm
   tag: latest
   pullPolicy: IfNotPresent
+  port: 9000
 
 image_git:
   registry: docker.io
@@ -29,13 +30,13 @@ image_mariadb:
   repository: bitnami/mariadb
   tag: latest
   pullPolicy: IfNotPresent
+  port: 3306
 
 persistence:
   enabled: true
   name_volumen: db-volumen
   size: 1Gi 
-  path_local: /tmp
-  storage_class: local
+
 
 db:
   allow_empty_password: "yes"
