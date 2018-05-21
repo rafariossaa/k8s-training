@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ingress-wordpress
+  namespace: exercise03
+  labels:
+    app: wordpress
+    type: web
+    tier: frontend
+  annotations:
+    nginx.ingress.kubernetes.io/affinity: cookie
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+     location /my-custom-admin { return 301 $scheme://wordpress-exercise-03.com/wp-admin; }
+spec:
+  tls:
+  - hosts:
+    - wordpress-exercise-03.com
+    secretName: tls-wp
+  rules:
+  - host: wordpress-exercise-03.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: service-wordpress
+          servicePort: http-sv-port

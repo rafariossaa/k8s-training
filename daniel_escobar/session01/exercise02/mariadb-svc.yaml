@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadbsvc
+  namespace: exercise-02
+  labels:
+    app: mariadb
+spec:
+  selector:
+    app: mariadb
+  ports:
+    - port: 3306
+      name: dbport-svc
+      targetPort: dbport
+  type: ClusterIP

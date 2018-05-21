@@ -1,0 +1,13 @@
+apiVersion: v1
+data:
+  MARIADB_HOST: "mariadb"
+  MARIADB_PORT_NUMBER: "3306"
+  WORDPRESS_DATABASE_NAME: "k8s_training_db_23"
+  WORDPRESS_DATABASE_USER: "k8s_training_user_23"
+  WORDPRESS_USERNAME: "julio_iglesias"
+  WORDPRESS_FIRST_NAME: "Julio"
+  WORDPRESS_LAST_NAME: "Iglesias de la Cueva"
+  WORDPRESS_BLOG_NAME: "La vida sigue igual"
+kind: ConfigMap
+metadata:
+  name: wordpress

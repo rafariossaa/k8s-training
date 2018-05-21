@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress
+  namespace: exercise-02
+  labels: 
+    app: wordpress
+data:
+  hostname: mariadbsvc
+  blogname: Exercise 2 Blog Production by Dani
+  blogname-canary: Exercise 2 Blog Canary Version by Dani
+  prefixtable: wp_tbl_ 

@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress
+  namespace: exercise-03
+
+data:
+  allow_empty_password: "no"
+  mariadb_host: rds
+  mariadb_port_number: "3306"
+  wordpress_database_name: "k8s_training_db_17"
+  wordpress_blog_name: La vida sigue igual
+  wordpress_first_name: Julio
+  wordpress_last_name: Iglesias de la Cueva
+  wordpress_table_prefix: wp_

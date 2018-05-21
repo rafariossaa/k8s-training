@@ -1,0 +1,40 @@
+﻿apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mariadb
+  namespace: exercise-01
+  labels: 
+    exercise: "01"
+    rol: db-wp
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels: 
+        exercise: "01"
+        rol: db-wp
+    spec:
+      containers:
+      - image: bitnami/mariadb:latest
+        name: mariadb
+        ports: 
+        - name: mariadb-port
+          containerPort: 3306
+        env:
+        - name: ALLOW_EMPTY_PASSWORD
+          value: 'yes'
+        - name: MARIADB_USER
+          valueFrom:
+            configMapKeyRef:
+             name: wordpress-cm
+             key: WORDPRESS_DATABASE_USER
+        - name: MARIADB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+             name: wordpress-cm
+             key: WORDPRESS_DATABASE_NAME 
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: wordpress-secrets
+              key: WORDPRESS_DATABASE_PASSWORD

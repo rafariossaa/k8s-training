@@ -1,0 +1,17 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress-cm
+  namespace: exercise-03
+data:
+  WORDPRESS_USERNAME: julio_iglesias
+  WORDPRESS_EMAIL: admin@example.com
+  WORDPRESS_FIRST_NAME: Julio
+  WORDPRESS_LAST_NAME: Iglesias de la Cueva
+  WORDPRESS_BLOG_NAME: La vida sigue igual
+  MARIADB_HOST: wp-db-rds
+  MARIADB_PORT: "3306"
+  WORDPRESS_DATABASE_NAME: k8s_training_db_09
+  WORDPRESS_TABLE_PREFIX: wp_
+  WORDPRESS_DATABASE_USER: k8s_training_user_09
+
