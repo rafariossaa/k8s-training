@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress
+  namespace: exercise-03
+  labels: 
+    app: wordpress
+data:
+  hostname: rds-svc
+  blogname: La vida sigue igual
+  prefixtable: wp_tbl_
+  fname: Julio
+  lname: Iglesias de la Cueva

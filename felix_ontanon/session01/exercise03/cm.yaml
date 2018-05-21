@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: blogconfig
+  namespace: exercise-03
+  labels:
+    app: wpblog
+data:
+  db-blog-name: "k8s_training_db_15"
+  db-blog-user: "k8s_training_user_15"
+  wp-blog-name: "Exercise-03"
+  wp-blog-user: "admin"
+  wp-blog-email: "felixonta@gmail.com"
+  wp-blog-firstname: "J. Félix"
+  wp-blog-lastname: "Ontañón"

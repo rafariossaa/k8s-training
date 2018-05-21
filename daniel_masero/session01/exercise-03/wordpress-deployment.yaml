@@ -1,0 +1,98 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+   name: wordpress
+   namespace: exercise-03
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        tier: frontend
+    spec:
+      containers:
+      - image:  bitnami/wordpress:latest
+        name: wordpress
+        env: 
+          - name: ALLOW_EMPTY_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: allow_empty_password
+          - name: MARIADB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: mariadb_host
+          - name: MARIADB_PORT_NUMBER
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: mariadb_port_number
+          - name: WORDPRESS_DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: wordpress
+                key: dbuser
+          - name: WORDPRESS_DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: wordpress
+                key: dbpassword
+          - name: WORDPRESS_DATABASE_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: wordpress_database_name
+          - name: WORDPRESS_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: wordpress
+                key: wordpressuser
+          - name: WORDPRESS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: wordpress
+                key: wordpresspassword
+          - name: WORDPRESS_FIRST_NAME
+            valueFrom:
+              configMapKeyRef:  
+                name: wordpress
+                key: wordpress_first_name
+          - name: WORDPRESS_LAST_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: wordpress_last_name
+          - name: WORDPRESS_BLOG_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: wordpress_blog_name
+          - name: WORDPRESS_TABLE_PREFIX
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: wordpress_table_prefix              
+        ports:
+          - name: http-server
+            containerPort: 80
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http-server
+            httpHeaders:
+            - name: X-Custom-Header
+              value: Awesome
+          initialDelaySeconds: 30
+          periodSeconds: 3
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http-server
+            httpHeaders:
+            - name: X-Custom-Header
+              value: Awesome
+          initialDelaySeconds: 30
+          periodSeconds: 20

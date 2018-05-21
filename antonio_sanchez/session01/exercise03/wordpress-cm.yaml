@@ -1,0 +1,9 @@
+﻿apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: wordpress
+  namespace: exercise03
+data:
+  blog: La vida sigue igual
+  first_name: Julio
+  last_name: Iglesias de la Cueva

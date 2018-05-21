@@ -1,0 +1,97 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: wordpress
+  namespace: exercise-03
+  labels:
+    app: wordpress
+    type: frontend
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        type: frontend
+
+    spec:
+      containers:
+      - image: bitnami/wordpress:latest
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: wordpress
+        env:
+          - name: MARIADB_HOST
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: hostname
+
+          - name: MARIADB_PORT_NUMBER
+            value: "3306"
+              
+          - name: WORDPRESS_DATABASE_NAME
+            valueFrom:
+              secretKeyRef:
+                name: wordpress
+                key: dbname
+
+          - name: WORDPRESS_DATABASE_USER
+            valueFrom:
+              secretKeyRef:
+                name: wordpress
+                key: dbuser
+
+          - name: WORDPRESS_DATABASE_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: wordpress
+                key: dbpass     
+          
+          - name: WORDPRESS_USER
+            valueFrom:
+              secretKeyRef:
+                name: wordpress
+                key: userwp
+
+          - name: WORDPRESS_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: wordpress
+                key: passwordwp
+
+          - name: WORDPRESS_BLOG_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: blogname         
+
+          - name: WORDPRESS_TABLE_PREFIX
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: prefixtable
+
+          - name: WORDPRESS_FIRST_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: fname
+
+          - name: WORDPRESS_LAST_NAME
+            valueFrom:
+              configMapKeyRef:
+                name: wordpress
+                key: lname
+
+        ports:
+        - name: http
+          containerPort: 80

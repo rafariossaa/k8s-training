@@ -1,0 +1,74 @@
+# Deployment wordpress
+
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: wordpress-deployment-canary
+  namespace: exercise-02
+  labels:
+    app: wordpress
+    tier: frontend
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: wordpress
+        tier: frontend
+    spec:
+      containers:
+        - name: wordpress
+          image: bitnami/wordpress:4.9.5
+          ports:
+            - containerPort: 80
+              name: http-port
+            - containerPort: 443
+              name: https-port
+          env:
+            - name: MARIADB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config-exercise
+                  key: mariadb_host
+            - name: MARIADB_PORT_NUMBER
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config-exercise
+                  key: mariadb_port
+            - name: MARIADB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config-exercise
+                  key: mariadb_user
+            - name: MARIADB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config-exercise
+                  key: mariadb_database
+            - name: WORDPRESS_BLOG_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: env-config-exercise
+                  key: wordpress_blog_name
+            - name: WORDPRESS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-exercise
+                  key: password_wordpress
+            - name: WORDPRESS_DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-exercise
+                  key: passsword_db
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http-port
+            initialDelaySeconds: 60
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http-port
+            initialDelaySeconds: 60
+            failureThreshold: 3
