@@ -9,6 +9,7 @@ metadata:
     heritage: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  serviceName: db-{{ template "lemp.fullname" . }}
   selector:
     matchLabels:
       app: {{ template "lemp.name" . }}
