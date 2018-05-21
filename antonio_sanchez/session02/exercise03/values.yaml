@@ -40,6 +40,11 @@ service:
     type: NodePort
     port: 3306
 
+dbdata:
+  user: lemp
+  password: l3mpdb
+  root_password: p4ssw0rd
+
 ingress:
   enabled: true
   annotations: {}
