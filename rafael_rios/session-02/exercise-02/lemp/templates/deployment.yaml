@@ -1,0 +1,67 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "lemp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "lemp.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      initContainers:
+        - name: "descarga-app"
+          image: "busybox"
+          resources:
+            requests:
+              cpu: 200m
+          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
+          command: ["/bin/sh","-c"]
+          # Get the app from repository, delete files not wanted here
+          args: ["mkdir /app/php-sample-app; cd /app/php-sample-app; wget https://raw.githubusercontent.com/bitnami-labs/k8s-training-resources/master/php-sample-app/index.php; wget https://raw.githubusercontent.com/bitnami-labs/k8s-training-resources/master/php-sample-app/hpa-test.php"]
+          volumeMounts:
+            - name: {{ template "lemp.fullname" . }}-app
+              mountPath: /app
+      containers:
+        - name: {{ printf "%s-nginx-%s" .Chart.Name .Values.nginx.tag }}
+          image: {{ printf "%s:%s" "bitnami/nginx"  .Values.nginx.tag }}
+          imagePullPolicy: {{ .Values.nginx.pullPolicy }}
+          resources:
+            requests:
+              cpu: 200m
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+          volumeMounts:
+            - name: {{ template "lemp.fullname" . }}-vh
+              mountPath: /bitnami/nginx/conf/vhosts
+            - name: {{ template "lemp.fullname" . }}-app
+              mountPath: /app
+        - name: {{ printf "%s-phpfpm-%s" .Chart.Name .Values.phpfpm.tag }}
+          image: {{ printf "%s:%s" "bitnami/php-fpm"  .Values.phpfpm.tag }}
+          imagePullPolicy: {{ .Values.phpfpm.pullPolicy }}
+          resources:
+            requests:
+              cpu: 200m
+          ports:
+            - name: http
+              containerPort: 9090
+              protocol: TCP                            
+      volumes:
+        - name: {{ template "lemp.fullname" . }}-vh
+          configMap:
+            name: {{ template "lemp.fullname" . }}-cm
+        - name: {{ template "lemp.fullname" . }}-app
+          persistentVolumeClaim:
+            claimName: {{ template "lemp.fullname" . }}-pvc
