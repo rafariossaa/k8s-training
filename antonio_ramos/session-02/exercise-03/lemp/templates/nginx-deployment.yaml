@@ -1,0 +1,96 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Values.nginxService.name }}
+  labels:
+    app: {{ .Chart.Name }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+spec:
+  replicas: {{ .Values.nginx.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    spec:
+      initContainers:
+      - name: git-clone-repository
+        image: "{{ .Values.gitImage.registry }}/{{ .Values.gitImage.repository }}:{{ .Values.gitImage.tag }}"
+        imagePullPolicy: {{ .Values.gitImage.pullPolicy | quote }}
+        command: [ '/bin/sh', '-c' , 'git clone {{ .Values.repository }} {{ .Values.pathapp }} ; cd {{ .Values.pathapp }} ; git checkout {{ .Values.revision }}']
+        volumeMounts:
+        - name: data
+          mountPath: {{ .Values.pathapp }}
+      containers:
+      - name: {{ .Values.nginxService.name }}
+        image: "{{ .Values.nginx.image }}"
+        imagePullPolicy: {{ .Values.nginx.pullPolicy | quote }}
+        ports:
+        - name: http
+          containerPort: 8080
+        - name: https
+          containerPort: 8443
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 6
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 5
+          timeoutSeconds: 3
+          periodSeconds: 5
+        volumeMounts:
+        - name: data
+          mountPath: {{ .Values.pathapp }}
+        - name: nginx-vhost
+          mountPath: /bitnami/nginx/conf/vhosts
+{{- if .Values.autoscale.enabled }}
+        resources:
+          requests:
+            cpu: 50m
+{{- end }}
+      - name: {{ .Values.phpfpmService.name }}
+        image: "{{ .Values.phpfpm.image }}"
+        imagePullPolicy: {{ .Values.phpfpm.pullPolicy | quote }}
+        ports:
+        - name: http
+          containerPort: 9000
+        volumeMounts:
+        - name: data
+          mountPath: {{ .Values.pathapp }}
+{{- if .Values.autoscale.enabled }}
+        resources:
+          requests:
+            cpu: 50m
+{{- end }}      
+      
+      volumes:
+      - name: nginx-vhost
+        configMap:
+          name: {{ template "fullname" . }}-{{ .Values.nginxService.name }}
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ template "fullname" . }}
+---
+{{- if .Values.autoscale.enabled }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "fullname" . }}-autoscaler
+spec:
+  maxReplicas: {{ .Values.autoscale.maxReplicas }}
+  minReplicas: {{ .Values.autoscale.minReplicas }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.nginxService.name }}
+  targetCPUUtilizationPercentage: {{ .Values.autoscale.cpu }}
+{{- end }}      
+
+
+
