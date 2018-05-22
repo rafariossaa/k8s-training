@@ -1,0 +1,19 @@
+{{- if .Values.hpa.enable }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "lemp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  maxReplicas: {{ .Values.hpa.maxrep }}
+  minReplicas: {{ .Values.hpa.minrep }}
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ template "lemp.fullname" . }}
+  targetCPUUtilizationPercentage: {{ .Values.hpa.cpuperc }}
+{{- end}}

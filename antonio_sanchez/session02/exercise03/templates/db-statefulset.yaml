@@ -1,0 +1,75 @@
+apiVersion: apps/v1beta2
+kind: StatefulSet
+metadata:
+  name: db-{{ template "lemp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "lemp.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+      - name: {{ .Values.containers.db.name }}
+        image: {{ .Values.containers.db.image }}
+        imagePullPolicy: {{ .Values.containers.db.pullPolicy }}
+        ports:
+          - name: db-port
+            containerPort: 3306
+            protocol: TCP
+        volumeMounts:
+        - mountPath: /data
+          name: dbdata
+        livenessProbe:
+          tcpSocket:
+            port: 3306
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+              - /bin/sh
+              - -c
+              - mysqladmin -u root -p${MARIADB_ROOT_PASSWORD} version
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        env:
+          - name: MARIADB_USER
+            valueFrom:
+              secretKeyRef:
+                name: db-{{ template "lemp.fullname" . }}
+                key: user
+          - name: MARIADB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-{{ template "lemp.fullname" . }}
+                key: password
+          - name: MARIADB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-{{ template "lemp.fullname" . }}
+                key: root_password
+          - name: MARIADB_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: db-{{ template "lemp.fullname" . }}
+                key: database
+  volumeClaimTemplates:
+  - metadata:
+      name: dbdata
+    spec:
+      accessModes: [ {{ .Values.pvc.db.accessmode }} ]
+      resources:
+        requests:
+          storage: {{ .Values.pvc.db.storage }}
