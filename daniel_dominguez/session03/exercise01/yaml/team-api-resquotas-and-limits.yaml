@@ -1,0 +1,22 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: team-api-resquota
+  namespace: team-api
+spec:
+  hard:
+    limits.cpu: 400m
+    limits.memory: 0.8Gi
+
+---
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: team-api-limitrange
+  namespace: team-api
+spec:
+  limits:
+  - max:
+      cpu: 1
+      memory: 100Mi
+    type: Container

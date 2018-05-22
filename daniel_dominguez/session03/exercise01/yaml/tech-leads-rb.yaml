@@ -1,0 +1,27 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: exercise01:tech-leads-vision-rb
+  namespace: team-vision
+subjects:
+- kind: Group
+  name: tech-lead # Name is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: exercise01:create-delete-cr
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: exercise01:tech-leads-api-rb
+  namespace: team-api
+subjects:
+- kind: Group
+  name: tech-lead # Name is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: exercise01:create-delete-cr
+  apiGroup: rbac.authorization.k8s.io

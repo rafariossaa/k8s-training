@@ -1,0 +1,13 @@
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: exercise01:vision-team-vision-rb
+  namespace: team-vision
+subjects:
+- kind: Group
+  name: vision # Name is case sensitive
+  apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: exercise01:create-delete-cr
+  apiGroup: rbac.authorization.k8s.io

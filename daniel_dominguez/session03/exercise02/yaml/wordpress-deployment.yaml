@@ -1,0 +1,83 @@
+apiVersion: v1
+data:
+  MARIADB_HOST: "mariadb"
+  MARIADB_PORT_NUMBER: "3306"
+  WORDPRESS_DATABASE_NAME: "wordpress"
+  WORDPRESS_DATABASE_USER: "wordpress"
+  WORDPRESS_USERNAME: "admin"
+  WORDPRESS_FIRST_NAME: "Daniel"
+  WORDPRESS_LAST_NAME: "Dominguez"
+  WORDPRESS_BLOG_NAME: "K8S TRAINING BLOG"
+kind: ConfigMap
+metadata:
+  name: wordpress
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: wordpress
+spec:
+  storageClassName: local-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 3Gi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: wordpress
+  name: wordpress
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wordpress
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: wordpress
+        - secretRef:
+            name: wordpress
+        name: wordpress
+        image: docker.io/bitnami/wordpress:latest
+        imagePullPolicy: Always
+        livenessProbe:
+          httpGet:
+            path: /wp-login.php
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 60
+          periodSeconds: 10
+          timeoutSeconds: 5
+        ports:
+        - containerPort: 80
+          name: http
+          protocol: TCP
+        - containerPort: 443
+          name: https
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /wp-login.php
+            port: http
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: /bitnami
+          name: data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: wordpress
