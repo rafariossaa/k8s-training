@@ -1,0 +1,15 @@
+{{- if .Values.frontend.autoscale }}
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  creationTimestamp: null
+  name: terrifying-tapir-frontend-depl
+spec:
+  maxReplicas: 10
+  minReplicas: 1
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: {{ .Release.Name }}-frontend-depl
+  targetCPUUtilizationPercentage: 50
+{{- end }}

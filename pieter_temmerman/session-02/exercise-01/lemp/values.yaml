@@ -1,0 +1,101 @@
+# Default values for lemp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+#GENERAL CONFIGURATION
+pullPolicy: IfNotPresent
+
+
+#FRONTEND CONFIGURATION
+frontend:
+  name: nginx-php-deployment
+  replicaCount: 1
+  persistence:
+    enabled: true
+    volume_size: 2Gi
+    mount_point: /data
+
+  #BEGIN NGINX CONFIGURATION
+  nginx:
+    name: nginx
+    port: 8080
+    image:
+      repository: bitnami/nginx
+      tag: latest
+    service:
+      type: NodePort
+      port: 80
+    config: |-
+      server {
+        listen 0.0.0.0:8080;
+        server_name myapp.com;
+
+        root /data/php-sample-app;
+
+        location / {
+          try_files $uri $uri/index.php;
+        }
+
+        location ~ \.php$ {
+          # As php and nginx are in the same pod, we can access php-fpm service through localhost
+          fastcgi_pass 127.0.0.1:9000;
+          fastcgi_index index.php;
+          include fastcgi.conf;
+        }
+      }
+
+  # BEGIN PHP-FPM CONFIGURATION
+  php_fpm:
+    name: php-fpm
+    port: 9000
+    image:
+      repository: bitnami/php-fpm
+      tag: latest
+
+
+  #BEGIN GIT CONFIGURATION
+  git:
+    name: git
+    image:
+      repository: alpine/git
+      tag: latest
+    repository_url: https://github.com/bitnami-labs/k8s-training-resources.git
+
+
+
+
+#BACKEND CONFIGURATION
+backend:
+  name: mariadb-deployment
+  replicaCount: 2
+  persistence:
+    enabled: true
+    volume_size: 2Gi
+    mount_point: /bitnami
+
+  # BEGIN MARIADB CONFIGURATION
+  mariadb:
+    name: mariadb
+    image:
+      repository: bitnami/mariadb
+      tag: latest
+    settings:
+      database: mariatest
+      root_user: root
+      root_password: r00t
+      db_user: dbuser
+      db_password: dbpass
+
+#ACCESSIBILITY CONFIGURATION
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local

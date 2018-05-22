@@ -1,0 +1,63 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "lemp.fullname" . }}-backend-depl
+  namespace: exercise-01
+  labels:
+    app: {{ .Values.backend.name }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.backend.name }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.backend.name }}
+        release: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Values.backend.mariadb.name }}
+          image: {{ .Values.backend.mariadb.image.repository }}:{{ .Values.backend.mariadb.image.tag }}
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          envFrom:
+          - secretRef:
+              name: {{ template "lemp.fullname" . }}-secret
+          env:
+            - name: MARIADB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Release.Name }}-configmap
+                  key: MARIADB_DATABASE
+          ports:
+            - name: dbport
+              containerPort: 3306
+              protocol: TCP
+          livenessProbe:
+            exec:
+              command:
+              - "mysqladmin"
+              - "ping"
+              - "-u$MARIADB_USER"
+              - "-p$MARIADB_PASSWORD"
+          readinessProbe:
+            exec:
+              command:
+              - "mysqladmin"
+              - "ping"
+              - "-u$MARIADB_USER"
+              - "-p$MARIADB_PASSWORD"
+          volumeMounts:
+            - name: backend-data
+              mountPath: {{ .Values.backend.persistence.mount_point }}
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+      volumes:
+        - name: backend-data
+          persistentVolumeClaim:
+            claimName: {{ template "lemp.fullname" . }}-backend
