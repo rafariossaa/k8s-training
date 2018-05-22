@@ -1,0 +1,83 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "lemp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "lemp.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: data
+          hostPath:
+            path: /k8s-training-resources/php-sample-app/
+        - name: config-vol
+          configMap:
+            name: {{ .Values.configMap }}
+            items:
+              - key: conf
+                path: myapp.conf
+      initContainers:
+        - name: download-php
+          image: busybox
+          command: ["sh", "-c", "rm -rf /app/*; git clone https://github.com/bitnami-labs/k8s-training-resources/ /app; cd /app; git pull;"]                  
+          volumeMounts:
+            - name: data
+              mountPath: /k8s-training-resources/php-sample-app/
+      containers:       
+        - name: php
+          image: bitnami/php-fpm
+          ports:
+            - name: http
+              containerPort: 9000
+              protocol: TCP
+          volumeMounts:
+            - name: data
+              mountPath: /k8s-training-resources/php-sample-app/
+        - name: {{ .Chart.Name }}
+#          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "bitnami/nginx"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts:
+            - name: config-vol
+              mountPath: /bitnami/nginx/conf/vhosts
+            - name: data
+              mountPath: /k8s-training-resources/php-sample-app/
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}      

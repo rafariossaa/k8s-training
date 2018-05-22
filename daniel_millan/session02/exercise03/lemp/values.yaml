@@ -1,0 +1,68 @@
+# Default values for lemp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+configMap: vol-config-map
+
+hpa:
+  enabled: true
+  maxReplicas: 10
+  minReplicas: 1
+  targetCpu: 50
+
+image:
+  repository: nginx
+  tag: stable
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - chart-example.local
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+postgresql:
+  enabled: true
+  postgresUser: my-user
+  postgresPassword: secretpassword
+  postgresDatabase: my-database
+
+mariadb:
+  serviceName: mariadb
+  image: bitnami/mariadb
+  enabled: true
+  rootPassword: MTIzNA==
+  dbName: app_db
+  dbUser: app_user
+  userPassword: MTIzNDU=
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
