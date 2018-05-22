@@ -1,0 +1,77 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "lemp.fullname" . }}
+  namespace: {{.Values.namespace}}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "lemp.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.name" . }}
+        release: {{ .Release.Name }}
+        tier: {{.Values.label_frontend}}   
+    spec:
+      initContainers:
+      - name: git-clone-repository
+        image: "{{ .Values.image_git.registry }}/{{ .Values.image_git.repository }}:{{ .Values.image_git.tag }}"
+        command: [ '/bin/sh', '-c' , 'git clone {{ .Values.git.repository }} /app && cd /app && git checkout {{ .Values.git.revision }}']
+        volumeMounts:
+        - name: app
+          mountPath: /app
+
+      containers:
+        - name: {{.Values.image_nginx.name}}-{{ .Chart.Name }}
+          image: "{{ .Values.image_nginx.repository }}:{{ .Values.image_nginx.tag }}"
+          imagePullPolicy: {{ .Values.image_nginx.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          volumeMounts: 
+            - mountPath: /bitnami/nginx/conf/vhosts/ 
+              name: config
+            - mountPath: /app
+              name: app
+        - name: {{.Values.image_php.name}}-{{ .Chart.Name }}
+          image: "{{ .Values.image_php.repository }}:{{ .Values.image_php.tag }}"
+          imagePullPolicy: {{ .Values.image_php.pullPolicy }}
+          ports:
+            - name: php-fpm
+              containerPort: {{.Values.image_php.port}}
+          volumeMounts: 
+            - mountPath: /app
+              name: app
+      
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+
+      volumes: 
+        - name: config
+          configMap:
+            name: {{ template "lemp.fullname" . }}
+            items:
+              - key: file
+                path: myapp.conf
+        - name: app
+          emptyDir: {}
+
+
+
