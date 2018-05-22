@@ -1,0 +1,56 @@
+# Default values for lemp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+app: 
+  host: myapp.com
+  port: 80
+
+mariadb:
+
+  # Database admin to create and database
+  mariadbUser: lemp
+  mariadbDatabase: lemp-wordpress
+  mariadbPort: 3306
+
+  # Default deployment values
+  replicaCount: 1
+
+  image:
+    repository: bitnami/mariadb
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  persistence:
+    accessMode: ReadWriteOnce
+    size: 10Gi
+
+  service:
+    type: ClusterIP
+    port: 3306
+
+sampleapp:
+
+  # Default deployment values
+  replicaCount: 1
+  mountpath: /bitnami/sampleapp
+
+  nginxport: 8080
+  nginximage:
+    repository: bitnami/nginx
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  phpfpmport: 9000
+  phpfpmimage:
+    repository: bitnami/php-fpm
+    tag: latest
+    pullPolicy: IfNotPresent
+
+  persistence:
+    accessMode: ReadWriteOnce
+    size: 1Gi
+
+  service:
+    type: ClusterIP
+    port: 8080

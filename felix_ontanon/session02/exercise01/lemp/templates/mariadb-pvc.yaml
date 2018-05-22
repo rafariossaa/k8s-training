@@ -1,0 +1,16 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "mariadb.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    tier: database
+spec:
+  accessModes:
+    - {{ .Values.mariadb.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.mariadb.persistence.size | quote }}

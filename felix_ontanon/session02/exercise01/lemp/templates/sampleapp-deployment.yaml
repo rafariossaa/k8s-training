@@ -1,0 +1,88 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "sampleapp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    tier: frontend
+spec:
+  replicas: {{ .Values.sampleapp.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "lemp.name" . }}
+      release: {{ .Release.Name }}
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.name" . }}
+        release: {{ .Release.Name }}
+        tier: frontend
+    spec:
+
+      initContainers:
+      - name: git-clone
+        image: "alpine/git"
+        args:
+          - clone
+          - https://github.com/bitnami-labs/k8s-training-resources
+          - {{ .Values.sampleapp.mountpath }}
+        volumeMounts:
+        - name: git-repo
+          mountPath: {{ .Values.sampleapp.mountpath }}
+
+      containers:
+      - name: nginx
+        image: "{{ .Values.sampleapp.nginximage.repository }}:{{ .Values.sampleapp.nginximage.tag }}"
+        imagePullPolicy: {{ .Values.sampleapp.nginximage.pullPolicy }}
+        ports:
+        - name: http
+          containerPort: {{ .Values.sampleapp.nginxport }}
+        volumeMounts:
+        - name: nginxconf
+          mountPath: /bitnami/nginx/conf/vhosts
+        - name: git-repo
+          mountPath: {{ .Values.sampleapp.mountpath }}
+        readinessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.sampleapp.nginxport }}
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        livenessProbe:
+          httpGet:
+            path: /
+            port: {{ .Values.sampleapp.nginxport }}
+          initialDelaySeconds: 15
+          periodSeconds: 20
+
+      - name: php-fpm
+        image: "{{ .Values.sampleapp.phpfpmimage.repository }}:{{ .Values.sampleapp.phpfpmimage.tag }}"
+        imagePullPolicy: {{ .Values.sampleapp.phpfpmimage.pullPolicy }}
+        ports:
+        - name: php-fpm
+          containerPort: {{ .Values.sampleapp.phpfpmport }}
+        volumeMounts:
+        - name: git-repo
+          mountPath: {{ .Values.sampleapp.mountpath }}
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.sampleapp.phpfpmport }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.sampleapp.phpfpmport }}
+          initialDelaySeconds: 15
+          periodSeconds: 20
+
+      volumes:
+      - name: nginxconf
+        configMap:
+          name: {{ template "sampleapp.fullname" . }}
+      - name: git-repo
+        persistentVolumeClaim:
+          claimName: {{ template "sampleapp.fullname" . }}
