@@ -48,6 +48,20 @@ openssl req -new -key "/tmp/$KUBE_APISERVER_KEY_PATH" -out "$KUBE_APISERVER_CSR_
 openssl x509 -req -in "$KUBE_APISERVER_CSR_PATH" -CA "/tmp/$KUBERNETES_CA_CERT_PATH" -CAkey "/tmp/$KUBERNETES_CA_KEY_PATH" -CAcreateserial -out "/tmp/$KUBE_APISERVER_CERT_PATH"  -extensions v3_req -days 500 -extfile ${KUBE_APISERVER_CERT_CONFIG}
 
 #
+# Create certificate for service account generation
+#
+export SERVICE_ACCOUNT_GEN_CSR_PATH=/tmp/service-account-gen.csr
+
+## Private key
+openssl genrsa -out "/tmp/$SERVICE_ACCOUNT_GEN_KEY_PATH" 2048
+
+## Certificate sign request
+openssl req -new -key "/tmp/$SERVICE_ACCOUNT_GEN_KEY_PATH" -out "$SERVICE_ACCOUNT_GEN_CSR_PATH" -subj "/CN=service-accounts/O=Kubernetes"
+## Certificate
+openssl x509 -req -in "$SERVICE_ACCOUNT_GEN_CSR_PATH" -CA "/tmp/$KUBERNETES_CA_CERT_PATH" -CAkey "/tmp/$KUBERNETES_CA_KEY_PATH" -CAcreateserial -out "/tmp/$SERVICE_ACCOUNT_GEN_CERT_PATH" -days 500
+
+
+#
 # Install kube-apiserver
 #
 
@@ -68,11 +82,16 @@ for i in "${!CONTROLLER_PUBLIC_IPS[@]}"
 do
         scp /tmp/$KUBE_APISERVER_KEY_PATH $UBUNTU_USER@${CONTROLLER_PUBLIC_IPS[$i]}:/tmp/$KUBE_APISERVER_KEY_PATH
         scp /tmp/$KUBE_APISERVER_CERT_PATH $UBUNTU_USER@${CONTROLLER_PUBLIC_IPS[$i]}:/tmp/$KUBE_APISERVER_CERT_PATH
-        ssh $UBUNTU_USER@${CONTROLLER_PUBLIC_IPS[$i]} "sudo mv /tmp/$KUBE_APISERVER_KEY_PATH $KUBE_APISERVER_KEY_PATH; sudo mv /tmp/$KUBE_APISERVER_CERT_PATH $KUBE_APISERVER_CERT_PATH; sudo chown root:root $KUBERNETES_CERT_DIR/*"
+        scp /tmp/$SERVICE_ACCOUNT_GEN_KEY_PATH $UBUNTU_USER@${CONTROLLER_PUBLIC_IPS[$i]}:/tmp/$SERVICE_ACCOUNT_GEN_KEY_PATH
+        scp /tmp/$SERVICE_ACCOUNT_GEN_CERT_PATH $UBUNTU_USER@${CONTROLLER_PUBLIC_IPS[$i]}:/tmp/$SERVICE_ACCOUNT_GEN_CERT_PATH
+
+        ssh $UBUNTU_USER@${CONTROLLER_PUBLIC_IPS[$i]} "sudo mv /tmp/$KUBE_APISERVER_KEY_PATH $KUBE_APISERVER_KEY_PATH; sudo mv /tmp/$KUBE_APISERVER_CERT_PATH $KUBE_APISERVER_CERT_PATH; sudo mv /tmp/$SERVICE_ACCOUNT_GEN_KEY_PATH $SERVICE_ACCOUNT_GEN_KEY_PATH; sudo mv /tmp/$SERVICE_ACCOUNT_GEN_CERT_PATH $SERVICE_ACCOUNT_GEN_CERT_PATH; sudo chown root:root $KUBERNETES_CERT_DIR/*"
 
         ssh $UBUNTU_USER@${CONTROLLER_PUBLIC_IPS[$i]} "sudo wget -q $KUBE_APISERVER_URL -P $KUBERNETES_BIN_DIR"
         ssh $UBUNTU_USER@${CONTROLLER_PUBLIC_IPS[$i]} "sudo chmod +x $KUBERNETES_BIN_DIR/kube-apiserver"
 
+
+mkdir -p `dirname /tmp/$KUBE_APISERVER_SYSTEMD_SERVICE_PATH`
 ## Create systemd service
 cat << EOF | tee "/tmp/$KUBE_APISERVER_SYSTEMD_SERVICE_PATH"
 [Unit]
@@ -88,6 +107,7 @@ ExecStart=${KUBERNETES_BIN_DIR}/kube-apiserver \\
   --etcd-certfile=${ETCD_CLIENT_CERT_PATH} \\
   --etcd-keyfile=${ETCD_CLIENT_KEY_PATH} \\
   --etcd-servers=${etcdcluster} \\
+  --service-account-key-file=${SERVICE_ACCOUNT_GEN_CERT_PATH} \\
   --service-cluster-ip-range=${SERVICE_CLUSTERIP_NET} \\
   --authorization-mode=Node,RBAC \\
   --bind-address=0.0.0.0 \\
