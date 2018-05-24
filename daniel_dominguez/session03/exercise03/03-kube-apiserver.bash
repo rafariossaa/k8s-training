@@ -16,6 +16,7 @@ echo "Creating kube-apiserver certificates"
 export KUBE_APISERVER_CSR_PATH=/tmp/kube-apiserver_server.csr
 
 ## Private key
+mkdir -p `dirname /tmp/$KUBE_APISERVER_KEY_PATH`
 openssl genrsa -out "/tmp/$KUBE_APISERVER_KEY_PATH" 2048
 
 export KUBE_APISERVER_CERT_CONFIG=/tmp/kube-apiserver_cert_config.conf
@@ -71,7 +72,7 @@ first_loop=1
 for p in "${!CONTROLLER_PRIVATE_IPS[@]}"
 do
         (( $first_loop )) &&
-                etcdcluster="=https://${CONTROLLER_PRIVATE_IPS[$p]}:2379" ||
+                etcdcluster="https://${CONTROLLER_PRIVATE_IPS[$p]}:2379" ||
                 etcdcluster="${etcdcluster},https://${CONTROLLER_PRIVATE_IPS[$p]}:2379"
         unset first_loop
 done
@@ -109,10 +110,11 @@ ExecStart=${KUBERNETES_BIN_DIR}/kube-apiserver \\
   --etcd-servers=${etcdcluster} \\
   --service-account-key-file=${SERVICE_ACCOUNT_GEN_CERT_PATH} \\
   --service-cluster-ip-range=${SERVICE_CLUSTERIP_NET} \\
-  --authorization-mode=Node,RBAC \\
+  --authorization-mode=RBAC,Node \\
   --bind-address=0.0.0.0 \\
   --allow-privileged=true \\
-  --v=2
+  --v=2 \\
+  --service-node-port-range=$NODEPORT_RANGE
 Restart=on-failure
 RestartSec=5
 
@@ -129,5 +131,7 @@ EOF
         ssh $UBUNTU_USER@${CONTROLLER_PUBLIC_IPS[$i]} "sudo systemctl status kube-apiserver.service"
         ssh $UBUNTU_USER@${CONTROLLER_PUBLIC_IPS[$i]} "rm /tmp/kube-apiserver* -rf"
 done
+
+# Create secret for Calico
 
 echo "End of kube-apiserver step"

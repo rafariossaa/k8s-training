@@ -65,6 +65,15 @@ openssl req -new -key "/tmp/$ETCD_CLIENT_KEY_PATH" -out "$ETCD_CLIENT_CSR_PATH" 
 ## Certificate
 openssl x509 -req -in "$ETCD_CLIENT_CSR_PATH" -CA "/tmp/$KUBERNETES_CA_CERT_PATH" -CAkey "/tmp/$KUBERNETES_CA_KEY_PATH" -CAcreateserial -out "/tmp/$ETCD_CLIENT_CERT_PATH" -days 500
 
+
+# Create secret for Calico
+
+cat /tmp/${ETCD_CLIENT_KEY_PATH} | base64 > etcd-key
+cat /tmp/${ETCD_CLIENT_CERT_PATH} | base64 > etcd-cert
+cat /tmp/${KUBERNETES_CA_CERT_PATH} | base64 > etcd-ca
+
+exit 0
+
 #
 # Install etcd
 #

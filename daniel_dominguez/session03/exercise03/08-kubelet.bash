@@ -30,6 +30,8 @@ export KUBELET_CERT_CONFIG=/tmp/kubelet_cert_config.conf
 for i in "${!WORKER_PUBLIC_IPS[@]}"
 do
 
+HOSTNAME=`ssh $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]} "hostname"`
+
 cat <<EOF | tee ${KUBELET_CERT_CONFIG}
 [req]
 req_extensions = v3_req
@@ -38,14 +40,14 @@ distinguished_name = req_distinguished_name
 [v3_req]
 subjectAltName = @alt_names
 [alt_names]
-DNS = worker-${i}
+DNS = $HOSTNAME
 IP = ${WORKER_PRIVATE_IPS[$i]}
 IP.1 = 127.0.0.1
 EOF
 
 
 	## Certificate sign request
-	openssl req -new -key "/tmp/$KUBELET_KEY_PATH" -out "$KUBELET_CSR_PATH" -subj "/CN=system:node:worker-${i}/O=system:nodes" -config ${KUBELET_CERT_CONFIG}
+	openssl req -new -key "/tmp/$KUBELET_KEY_PATH" -out "$KUBELET_CSR_PATH" -subj "/CN=system:node:$HOSTNAME/O=system:nodes" -config ${KUBELET_CERT_CONFIG}
 
 	export KUBELET_CERT_OUT_PATH=/tmp/kubelet.crt
 
@@ -58,17 +60,11 @@ EOF
 	ssh $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]} "sudo mv /tmp/$KUBELET_CERT_PATH $KUBELET_CERT_PATH; sudo mv /tmp/$KUBERNETES_CA_CERT_PATH $KUBERNETES_CA_CERT_PATH"
 
 	#
-	# Install kubectl for creating the required kubeconfig
-	#
-	#wget -q "$KUBECTL_URL" -P "$KUBERNETES_BIN_DIR"
-	#chmod +x "$KUBERNETES_BIN_DIR/kubectl"
-
-	#
 	# Create kubeconfig for kubelet
 	#
 	kubectl config set-cluster k8s-training --certificate-authority=/tmp/$KUBERNETES_CA_CERT_PATH --embed-certs=true --server=https://${CONTROLLER_PRIVATE_IPS[0]}:6443 --kubeconfig=/tmp/${KUBELET_KUBECONFIG_PATH}
-	kubectl config set-credentials system:node:worker-${i} --client-certificate=$KUBELET_CERT_OUT_PATH --client-key=/tmp/$KUBELET_KEY_PATH --embed-certs=true --kubeconfig=/tmp/${KUBELET_KUBECONFIG_PATH}
-	kubectl config set-context default --cluster=k8s-training --user=system:node:worker-${i} --kubeconfig=/tmp/${KUBELET_KUBECONFIG_PATH}
+	kubectl config set-credentials system:node:$HOSTNAME --client-certificate=$KUBELET_CERT_OUT_PATH --client-key=/tmp/$KUBELET_KEY_PATH --embed-certs=true --kubeconfig=/tmp/${KUBELET_KUBECONFIG_PATH}
+	kubectl config set-context default --cluster=k8s-training --user=system:node:$HOSTNAME --kubeconfig=/tmp/${KUBELET_KUBECONFIG_PATH}
 	kubectl config use-context default --kubeconfig=/tmp/${KUBELET_KUBECONFIG_PATH}
 
 	ssh $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]} "mkdir -p `dirname /tmp/$KUBELET_KUBECONFIG_PATH`; sudo mkdir -p `dirname $KUBELET_KUBECONFIG_PATH`"
@@ -86,36 +82,36 @@ EOF
 	ssh $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]} "sudo tar xf /tmp/$CNI_TARBALL_NAME -C /opt/cni/bin/"
 
 
-cat <<EOF | tee /tmp/10-bridge.conf
-{
-    "cniVersion": "0.3.1",
-    "name": "bridge",
-    "type": "bridge",
-    "bridge": "cnio0",
-    "isGateway": true,
-    "ipMasq": true,
-    "ipam": {
-        "type": "host-local",
-        "ranges": [
-          [{"subnet": "${PODS_NET}"}]
-        ],
-        "routes": [{"dst": "0.0.0.0/0"}]
-    }
-}
-EOF
-	scp /tmp/10-bridge.conf $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]}:/tmp/
-	ssh $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]} "sudo mv /tmp/10-bridge.conf /etc/cni/net.d/10-bridge.conf"
-
-
-cat <<EOF | tee /tmp/99-loopback.conf
-{
-    "cniVersion": "0.3.1",
-    "type": "loopback"
-}
-EOF
-
-	scp /tmp/99-loopback.conf $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]}:/tmp/
-	ssh $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]} "sudo mv /tmp/99-loopback.conf /etc/cni/net.d/99-loopback.conf"
+#cat <<EOF | tee /tmp/10-bridge.conf
+#{
+#    "cniVersion": "0.3.1",
+#    "name": "bridge",
+#    "type": "bridge",
+#    "bridge": "cnio0",
+#    "isGateway": true,
+#    "ipMasq": true,
+#    "ipam": {
+#        "type": "host-local",
+#        "ranges": [
+#          [{"subnet": "${PODS_NET}"}]
+#        ],
+#        "routes": [{"dst": "0.0.0.0/0"}]
+#    }
+#}
+#EOF
+#	scp /tmp/10-bridge.conf $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]}:/tmp/
+#	ssh $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]} "sudo mv /tmp/10-bridge.conf /etc/cni/net.d/10-bridge.conf"
+#
+#
+#cat <<EOF | tee /tmp/99-loopback.conf
+#{
+#    "cniVersion": "0.3.1",
+#    "type": "loopback"
+#}
+#EOF
+#
+#	scp /tmp/99-loopback.conf $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]}:/tmp/
+#	ssh $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]} "sudo mv /tmp/99-loopback.conf /etc/cni/net.d/99-loopback.conf"
 
 	#
 	# Install kubelet , containerd
@@ -194,9 +190,11 @@ ExecStart=${KUBERNETES_BIN_DIR}/kubelet \\
   --cni-conf-dir=/etc/cni/net.d \\
   --cni-bin-dir=/opt/cni/bin \\
   --register-node=true \\
-  --allow-privileged=true
+  --allow-privileged=true \\
   --client-ca-file=${KUBERNETES_CA_CERT_PATH} \\
-  --v=2
+  --v=2 \\
+  --cluster-dns=$KUBE_DNS_SERVICE_IP \\
+  --cluster-domain=$CLUSTER_DOMAIN
 Restart=on-failure
 RestartSec=5
 
@@ -218,4 +216,9 @@ EOF
         sleep 5
         ssh $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]} "sudo systemctl status kubelet.service"
 
+	#needed for helm
+	ssh $UBUNTU_USER@${WORKER_PUBLIC_IPS[$i]} "sudo apt-get install socat"
 done
+
+kubectl apply -f calico_rbac_apiserver.yaml
+kubectl apply -f calico_apiserver.yaml
