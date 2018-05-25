@@ -1,0 +1,116 @@
+# Default values for lemp exercise-02.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  nginx:
+    registry: docker.io
+    repository: bitnami/nginx
+    tag: latest
+    pullPolicy: Always
+  php:
+    registry: docker.io
+    repository: bitnami/php-fpm
+    tag: latest
+    pullPolicy: Always
+  git:
+    registry: docker.io
+    repository: alpine/git
+    tag: latest
+    pullPolicy: Always
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  path: /
+  hosts:
+    - lemp-02.35.171.157.107.nip.io
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  requests:
+    cpu: 110m
+  #  memory: 128Mi
+
+# enable or disable autoscaling
+autoscaling:
+  enabled: true
+  maxReplicas: 10
+  minReplicas: 1
+  cpu: 60
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+persistence:
+  enabled: true
+#  storageClass: "local-storage"
+  annotations:
+  accessMode: ReadWriteOnce
+  size: 8Gi
+
+
+nginx:
+  vhost: |-
+    server {
+      listen 0.0.0.0:8080;
+      server_name lemp.35.171.157.107.nip.io;
+    
+      root /app/php-sample-app;
+    
+      location / {
+        try_files $uri $uri/index.php;
+      }
+    
+      location ~ \.php$ {
+        # As php and nginx are in the same pod, we can access php-fpm service through localhost
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        include fastcgi.conf;
+      }
+    }
+
+# MariaDB deployment parameters. Change it as needed
+mariadb:
+  app: mariadb
+  name: mariadb
+  securitySettings:
+    enabled: true
+    runAsUser: 1001
+    fsGroup: 1001
+  persistence:
+    enabled: true
+    accessMode: ReadWriteOnce
+    size: 8Gi
+  image:
+    registry: docker.io
+    repository: bitnami/mariadb
+    tag: latest
+    imagePullPolicy: Always
+  #set your own database/user below
+  mariadbDatabase: database1
+  mariadbUser: user1 
+  #set your own password below
+  rootPassword: p4ssw0rd
+  dbPassword: p4ssw0rd
