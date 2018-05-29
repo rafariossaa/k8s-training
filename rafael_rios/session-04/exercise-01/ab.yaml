@@ -1,0 +1,16 @@
+﻿apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ab-wordpress
+spec:
+  template:
+    metadata:
+      labels: 
+        exercise: "01"
+        rol: "benchmark"
+    spec:
+      containers:
+      - name: ab-bench
+        image:  jordi/ab
+        args: ["-c 10","-t 600","http://wp-wordpress/"]
+
