@@ -1,0 +1,16 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "sampleapp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    tier: frontend
+spec:
+  accessModes:
+    - {{ .Values.sampleapp.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.sampleapp.persistence.size | quote }}

@@ -1,0 +1,69 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ template "mariadb.fullname" . }}
+  name: {{ template "mariadb.fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "mariadb.fullname" . }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: {{ template "mariadb.fullname" . }}
+    spec:
+      containers:
+      - envFrom:
+        - configMapRef:
+            name: {{ template "mariadb.fullname" . }}
+        - secretRef:
+            name: {{ template "mariadb.fullname" . }}
+        name: mariadb
+        image: "{{ .Values.mariadb.image.registry }}/{{ .Values.mariadb.image.repository }}:{{ .Values.mariadb.image.tag }}"
+        imagePullPolicy: {{ .Values.mariadb.image.imagePullPolicy | quote }}
+        livenessProbe:
+          exec:
+            command:
+            - "mysqladmin"
+            - "ping"
+            - "-u$MARIADB_USER"
+            - "-p$MARIADB_PASSWORD"
+          failureThreshold: 3
+          initialDelaySeconds: 90
+          periodSeconds: 10
+          timeoutSeconds: 5
+        readinessProbe:
+          exec:
+            command:
+            - "mysqladmin"
+            - "ping"
+            - "-u$MARIADB_USER"
+            - "-p$MARIADB_PASSWORD"
+          failureThreshold: 3
+          initialDelaySeconds: 90
+          periodSeconds: 10
+          timeoutSeconds: 5
+        ports:
+        - containerPort: 3306
+          name: mysql
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /bitnami/mariadb
+          name: data
+      {{- if .Values.mariadb.securitySettings.enabled }}
+      securityContext:
+        runAsUser: {{ .Values.mariadb.securitySettings.runAsUser }}
+        fsGroup: {{ .Values.mariadb.securitySettings.fsGroup }}
+      {{- end}}
+      volumes:
+      - name: data
+      {{- if .Values.mariadb.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.mariadb.persistence.existingClaim | default (include "mariadb.fullname" .) }}
+      {{- else }}
+        emptyDir: {}
+      {{- end -}}
+

@@ -1,0 +1,15 @@
+apiVersion: v1
+data:
+  {{- if .Values.mariadb.user }}
+  MARIADB_USER: {{ .Values.mariadb.user }}
+  {{- end }}
+  
+  {{- if .Values.mariadb.databasename }}
+  MARIADB_DATABASE: {{ .Values.mariadb.databasename }}
+  {{- end }}
+  my_custom.cnf: |
+    [mysqld]
+    max_allowed_packet=32M
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-mariadb

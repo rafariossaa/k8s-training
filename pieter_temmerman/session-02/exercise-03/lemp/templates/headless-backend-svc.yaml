@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "lemp.fullname" . }}-backend-svc-headless
+  namespace: exercise-03
+  labels:
+    app: mariadb
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  ports:
+  - name: mariadb
+    port: 3306
+  clusterIP: None
+  selector:
+    app: {{ template "lemp.fullname" . }}-mariadb
+    release: {{ .Release.Name }}

@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+data:
+  mariadb_database: database03
+kind: ConfigMap
+metadata:
+  name: wordpress-mariadb-config-map
+  namespace: exercise-03

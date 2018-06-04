@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "mariadb.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+    tier: database
+spec:
+  type: {{ .Values.mariadb.service.type }}
+  ports:
+    - name: mysqlport
+      port: {{ .Values.mariadb.service.port }}
+      targetPort: {{ .Values.mariadb.mariadbPort }}
+  selector:
+    app: {{ template "lemp.name" . }}
+    release: {{ .Release.Name }}
+    tier: database

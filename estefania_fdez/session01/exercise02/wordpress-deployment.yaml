@@ -1,0 +1,59 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    app: wordpress
+  name: wordpress-deployment
+  namespace: exercise-02
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: wordpress
+    spec:
+      containers:
+        -
+          env:
+            -
+              name: MARIADB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: mariadb_host
+                  name: wordpress-mariadb-config-map
+            -
+              name: MARIADB_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  key: mariadb_database
+                  name: wordpress-mariadb-config-map
+            -
+              name: WORDPRESS_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  key: wordpress_username
+                  name: wordpress-mariadb-config-map
+            -
+              name: WORDPRESS_DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: wordpress_database_name
+                  name: wordpress-mariadb-config-map
+          image: "bitnami/wordpress:4.9.4"
+          livenessProbe:
+            httpGet: ~
+            initialDelaySeconds: 15
+            path: /wp-admin
+            periodSeconds: 5
+            port: http
+          name: wordpress
+          ports:
+            -
+              containerPort: 80
+              name: wordpress
+          readinessProbe:
+            httpGet: ~
+            initialDelaySeconds: 15
+            path: /wp-admin
+            port: http

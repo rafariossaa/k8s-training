@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "lemp.fullname" . }}-db
+  namespace: {{.Values.namespace}}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "lemp.fullname" . }}-db # has to match .spec.template.metadata.labels
+  serviceName: "{{ template "lemp.fullname" . }}-db"
+  replicas: {{ .Values.replicaCount_mariadb }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "lemp.fullname" . }}-db
+        release: {{ .Release.Name }}
+        tier: {{.Values.label_backend}}
+    spec:
+      securityContext:
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: {{.Values.image_mariadb.name}}-{{ .Chart.Name }}
+        image: "{{ .Values.image_mariadb.repository }}:{{ .Values.image_mariadb.tag }}"
+        imagePullPolicy: {{ .Values.image_mariadb.pullPolicy }}
+
+        env: 
+          - name: ALLOW_EMPTY_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: {{ template "lemp.fullname" . }}
+                key: allow_empty_password
+          - name: MARIADB_DATABASE
+            valueFrom:
+              configMapKeyRef:
+                name: {{ template "lemp.fullname" . }}
+                key: database_name
+          - name: MARIADB_USER
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "lemp.fullname" . }}
+                key: dbuser
+          - name: MARIADB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ template "lemp.fullname" . }}
+                key: dbpassword
+        ports:
+          - name: mariadb-server
+            containerPort: {{.Values.image_mariadb.port}}      
+        readinessProbe:
+          exec:
+            command:
+              - mysqladmin
+              - ping
+              - -u$MARIADB_USER
+              - -p$MARIADB_PASSWORD
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command:
+              - mysqladmin
+              - ping
+              - -u$MARIADB_USER
+              - -p$MARIADB_PASSWORD
+          initialDelaySeconds: 40
+          periodSeconds: 20
+        restartPolicy: Always
+{{ if .Values.persistence.enabled }}
+        volumeMounts:
+          - mountPath: /bitnami
+            name: volumesdb
+            subPath: mariadb
+      volumes:
+      - name: volumesdb
+        persistentVolumeClaim:
+          claimName: {{ template "lemp.fullname" . }}
+{{ end }}
+    resources:
+{{ toYaml .Values.resources | indent 12 }}
+
+

@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "lemp.fullname" . }}-db
+  namespace: {{.Values.namespace}}
+  labels:
+        app: {{ template "lemp.fullname" . }}-db
+        release: {{ .Release.Name }}
+        tier: {{.Values.label_backend}}s
+spec:
+  ports:
+  - port: {{.Values.image_mariadb.port}}
+    name: mariadb-server
+  clusterIP: None
+  selector:
+    app: {{ template "lemp.fullname" . }}-db

@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "lemp.fullname" . }}
+  labels:
+    app: {{ template "lemp.name" . }}
+    chart: {{ template "lemp.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  myapp.conf: |
+    server {
+      listen 0.0.0.0:8080;
+      server_name myapp.com;
+
+      root /app/php-sample-app;
+
+      location / {
+        try_files $uri $uri/index.php;
+      }
+
+      location ~ \.php$ {
+        # As php and nginx are in the same pod, we can access php-fpm service through localhost
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_index index.php;
+        include fastcgi.conf;
+      }
+    }

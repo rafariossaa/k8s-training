@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mariadb
+  namespace: exercise-01
+  labels:
+    app: mariadb
+    exercise: "01"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      # https://hub.docker.com/r/bitnami/mariadb/
+      - name: mariadb
+        image: bitnami/mariadb:latest
+        env:
+        - name: MARIADB_USER
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-config
+              key: database_user
+        - name: MARIADB_DATABASE
+          valueFrom:
+            configMapKeyRef:
+              name: wordpress-config
+              key: database_name
+        - name: MARIADB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secrets
+              key: mariadb-password
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+        ports:
+        - name: mysql
+          containerPort: 3306

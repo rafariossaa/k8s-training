@@ -1,0 +1,19 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "mariadb.fullname" . }}
+  labels:
+    app: {{ template "mariadb.name" . }}
+spec:
+  accessModes:
+    - {{ .Values.mariadb.persistence.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.mariadb.persistence.size | quote }}
+{{- if .Values.mariadb.persistence.storageClass }}
+{{- if (eq "-" .Values.mariadb.persistence.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.mariadb.persistence.storageClass }}"
+{{- end }}
+{{- end }}

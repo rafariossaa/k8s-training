@@ -1,0 +1,4 @@
+1. application URL:
+{{- if .Values.host }}
+  http://{{ $.Values.host }}
+{{- end}}
